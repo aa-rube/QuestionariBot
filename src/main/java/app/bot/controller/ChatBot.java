@@ -127,73 +127,90 @@ public class ChatBot extends TelegramLongPollingBot {
         }
 
         try {
-            if (update.getMessage().getChatId() == botConfig.getSuperUserChatId()) {
-                superUserTextMessageHandle(update, botConfig.getSuperUserChatId());
+            Long chatSuperUserId= update.getMessage().getChatId();
+            if (chatSuperUserId == botConfig.getSuperUserChatId()) {
+                superUserTextMessageHandle(update, chatSuperUserId);
                 return;
-            } else if (update.getMessage().getChatId() == botConfig.getModeratorChatId()) {
-                moderatorText(update, botConfig.getModeratorChatId());
+            } else if (chatSuperUserId == botConfig.getModeratorChatId()) {
+                moderatorText(update, chatSuperUserId);
                 return;
             }
         } catch (Exception e) {
             try {
-                if (update.getCallbackQuery().getMessage().getChatId() == botConfig.getSuperUserChatId()) {
-                    superUserHandleCallBackData(update, botConfig.getSuperUserChatId());
+                Long chatSuperUserId = update.getCallbackQuery().getMessage().getChatId();
+                if (chatSuperUserId == botConfig.getSuperUserChatId()) {
+                    superUserHandleCallBackData(update, chatSuperUserId);
                     return;
-                } else if (update.getCallbackQuery().getMessage().getChatId() == botConfig.getModeratorChatId()) {
+                } else if (chatSuperUserId == botConfig.getModeratorChatId()) {
                     moderatorCallBackData(update, botConfig.getModeratorChatId());
                     return;
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            
+            e.printStackTrace();
         }
 
-        if (update.hasCallbackQuery()) {
-            Long chatId = update.getCallbackQuery().getMessage().getChatId();
+        try {
+            if (update.hasCallbackQuery()) {
+                Long chatId = update.getCallbackQuery().getMessage().getChatId();
 
-            if (blockedUsers.contains(chatId)) {
-                executeSendMessage(createTestMsg.youWereBlocked(chatId));
+                if (blockedUsers.contains(chatId)) {
+                    executeSendMessage(createTestMsg.youWereBlocked(chatId));
+                    return;
+                }
+                userInDay.add(chatId);
+                callBackDataHandle(chatId, update);
+
                 return;
             }
-            userInDay.add(chatId);
-            callBackDataHandle(chatId, update);
-
-            return;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        if (update.getMessage().isCommand()) {
-            Long chatId = update.getMessage().getChatId();
-            if (blockedUsers.contains(chatId)) {
-                executeSendMessage(createTestMsg.youWereBlocked(chatId));
+        try {
+            if (update.getMessage().isCommand()) {
+                Long chatId = update.getMessage().getChatId();
+                if (blockedUsers.contains(chatId)) {
+                    executeSendMessage(createTestMsg.youWereBlocked(chatId));
+                    return;
+                }
+                userInDay.add(chatId);
+                commandMessageHandle(chatId, update);
+
                 return;
             }
-            userInDay.add(chatId);
-            commandMessageHandle(chatId, update);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            if (update.hasMessage() && update.getMessage().hasText() && !update.getMessage().hasPhoto()) {
 
-            return;
+                Long chatId = update.getMessage().getChatId();
+                if (blockedUsers.contains(chatId)) {
+                    executeSendMessage(createTestMsg.youWereBlocked(chatId));
+                    return;
+                }
+                userInDay.add(chatId);
+                textMessageHandle(chatId, update);
+                return;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
-        if (update.hasMessage() && update.getMessage().hasText() && !update.getMessage().hasPhoto()) {
-
-            Long chatId = update.getMessage().getChatId();
-            if (blockedUsers.contains(chatId)) {
-                executeSendMessage(createTestMsg.youWereBlocked(chatId));
-                return;
+        try {
+            if (update.getMessage().hasPhoto()) {
+                Long chatId = update.getMessage().getChatId();
+                if (blockedUsers.contains(chatId)) {
+                    executeSendMessage(createTestMsg.youWereBlocked(chatId));
+                    return;
+                }
+                userInDay.add(chatId);
+                photoMessageHandle(chatId, update);
             }
-            userInDay.add(chatId);
-            textMessageHandle(chatId, update);
-            return;
-        }
-
-        if (update.getMessage().hasPhoto()) {
-            Long chatId = update.getMessage().getChatId();
-            if (blockedUsers.contains(chatId)) {
-                executeSendMessage(createTestMsg.youWereBlocked(chatId));
-                return;
-            }
-            userInDay.add(chatId);
-            photoMessageHandle(chatId, update);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }
@@ -218,7 +235,6 @@ public class ChatBot extends TelegramLongPollingBot {
                 article.setTitle(questioner.getName());
                 article.setDescription("Рейтинг " + questioner.getAverageScore() + "⭐\uFE0F "
                         + "\nПройдено раз: " + questioner.getPassCount());
-                article.setThumbnailHeight(9);
 
                 InputTextMessageContent messageContent = new InputTextMessageContent();
                 messageContent.setMessageText("Давай пройдем тест \"" + questioner.getName() + "\"");
@@ -256,13 +272,11 @@ public class ChatBot extends TelegramLongPollingBot {
     }
     private void superUserTextMessageHandle(Update update, Long chatId) {
         String text = update.getMessage().getText();
-
         if (text.equals("/start")) {
             deleteMessage(chatId);
             executeSendMessage(adminMessage.getStartMessage(chatId));
             return;
         }
-
         if (text.contains("@") && !addUserNameGroupPartner.contains(chatId)) {
             deleteMessage(chatId);
             BotUser user = mongo.getBotUserByUserName(text.trim());
@@ -650,11 +664,16 @@ public class ChatBot extends TelegramLongPollingBot {
 
         if (command.equals("/start")) {
             userUserName.put(chatId, "@" + update.getMessage().getFrom().getUserName());
-            BotUser botUser = mongo.getBotUser(chatId);
-            if (botUser == null) {
-                executeSendMessage(subscribe.getSubscribeOffer(chatId, update));
-                return;
+            try {
+                BotUser botUser = mongo.getBotUser(chatId);
+                if (botUser == null) {
+                    executeSendMessage(subscribe.getSubscribeOffer(chatId, update));
+                    return;
+                }
+            } catch (Exception e) {
+
             }
+            BotUser botUser = mongo.getBotUser(chatId);
             if (botUser.isSubscribe()) {
                 executeSendMessage(createTestMsg.getWelcomeMessage(chatId));
                 return;
@@ -697,12 +716,10 @@ public class ChatBot extends TelegramLongPollingBot {
     }
     private void callBackDataHandle(Long chatId, Update update) {
         String data = update.getCallbackQuery().getData();
-        try {
+         try {
             callBackNumberHandle(chatId, Integer.parseInt(data.trim()));
         } catch (Exception e) {
             callBackDataTextHandle(update, chatId, data);
-            
-
         }
     }
     private void callBackNumberHandle(Long chatId, Integer number) {
