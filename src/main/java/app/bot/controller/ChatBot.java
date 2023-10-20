@@ -146,9 +146,7 @@ public class ChatBot extends TelegramLongPollingBot {
                     return;
                 }
             } catch (Exception ex) {
-                ex.printStackTrace();
             }
-            e.printStackTrace();
         }
 
         try {
