@@ -72,7 +72,7 @@ public class ChatBot extends TelegramLongPollingBot {
     private final HashMap<Long, Integer> waitForEditOption = new HashMap<>();
     private final HashMap<Long, Integer> waitForEditQuestionText = new HashMap<>();
     private final HashMap<Long, Integer> waitForEditQuestionPic = new HashMap<>();
-    private final HashMap<Long, Integer> waitForNewOptionForOldQuestion = new HashMap<>();
+    private final HashMap<Long, Integer> waitForNewOptionForExistingQuestion = new HashMap<>();
     private final HashMap<Long, String> waitForNewOptionsParamsForOldQuestion = new HashMap<>();
     private final HashMap<Long, String> waitForNewOptionsScoreForOldQuestion = new HashMap<>();
     private final HashMap<Long, Integer> waitForNewScoreFromEditKeyBoard = new HashMap<>();
@@ -643,7 +643,7 @@ public class ChatBot extends TelegramLongPollingBot {
         waitForResultPic.remove(chatId);
         waitForEditOption.remove(chatId);
         waitForEditQuestionPic.remove(chatId);
-        waitForNewOptionForOldQuestion.remove(chatId);
+        waitForNewOptionForExistingQuestion.remove(chatId);
         waitForNewOptionsParamsForOldQuestion.remove(chatId);
         waitForNewOptionsScoreForOldQuestion.remove(chatId);
         waitForNewScoreFromEditKeyBoard.remove(chatId);
@@ -1078,7 +1078,7 @@ public class ChatBot extends TelegramLongPollingBot {
             deleteMessage(chatId);
             removeFromAllWaitingLists(chatId);
             int index = Integer.parseInt(data.trim().split("_")[1]);
-            waitForNewOptionForOldQuestion.put(chatId, index);
+            waitForNewOptionForExistingQuestion.put(chatId, index);
 
             executeSendMessage(createTestMsg.getChangeParamAndBackToCreateQuestionParameters(chatId, "Введите вариант ответа:"));
             return;
@@ -1291,9 +1291,9 @@ public class ChatBot extends TelegramLongPollingBot {
             return;
         }
 
-        if (waitForNewOptionForOldQuestion.containsKey(chatId)) {
+        if (waitForNewOptionForExistingQuestion.containsKey(chatId)) {
             deleteMessage(chatId);
-            int index = waitForNewOptionForOldQuestion.get(chatId);
+            int index = waitForNewOptionForExistingQuestion.get(chatId);
             removeFromAllWaitingLists(chatId);
 
             create.get(chatId).getQuestions().get(index).getOptions().add(new Option(text.trim()));
@@ -1347,7 +1347,7 @@ public class ChatBot extends TelegramLongPollingBot {
 
         if (waitForNewScoreFromEditKeyBoard.containsKey(chatId)) {
             deleteMessage(chatId);
-
+            System.out.println("hereherererererererere");
             try {
                 int score = Integer.parseInt(text.trim());
                 int questionIndex = waitForNewScoreFromEditKeyBoard.get(chatId);
@@ -1355,11 +1355,9 @@ public class ChatBot extends TelegramLongPollingBot {
 
                 create.get(chatId).getQuestions().get(questionIndex).getOptions().get(lastOptElement).setScore(score);
                 removeFromAllWaitingLists(chatId);
-                try {
+
                     executeSendMessage(createTestMsg.getEditeQuestionByUserElement(chatId, create.get(chatId), questionIndex));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+
             } catch (Exception e) {
                 int questionIndex = waitForNewScoreFromEditKeyBoard.get(chatId);
                 int lastOptElement = create.get(chatId).getQuestions().get(questionIndex).getOptionsLastElementIndex();
@@ -1527,16 +1525,14 @@ public class ChatBot extends TelegramLongPollingBot {
     }
 
     private void sendTextOrPhotoQuestion(Long chatId, Questioner questioner, int index) {
-//        try {
-//            String s = questioner.getQuestions().get(index).getFilePath();
-//            System.out.println(s);
-//            executeSendPhoto(passTest.getMessageQuestionPhoto(chatId, questioner, index));
-//        } catch (Exception e) {
-
-
+        try {
+            String s = questioner.getQuestions().get(index).getFilePath();
+            System.out.println(s);
+            executeSendPhoto(passTest.getMessageQuestionPhoto(chatId, questioner, index));
+        } catch (Exception e) {
         executeSendMessage(passTest.getMessageQuestion(chatId, questioner, index));
-//            e.printStackTrace();
-//        }
+            e.printStackTrace();
+        }
     }
 
     private void photoMessageHandle(Long chatId, Update update) {
