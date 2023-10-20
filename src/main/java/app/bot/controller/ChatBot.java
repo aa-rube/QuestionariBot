@@ -95,14 +95,17 @@ public class ChatBot extends TelegramLongPollingBot {
     private final HashMap<Long, Integer> compareTopAndLowRates = new HashMap<>();
     private final HashMap<Long, HashSet<String>> cantStarsDouble = new HashMap<>();
     private final String dataPath = "data/";
+
     @Override
     public String getBotUsername() {
         return botConfig.getBotUserName();
     }
+
     @Override
     public String getBotToken() {
         return botConfig.getToken();
     }
+
     @Scheduled(cron = "0 0 * * * ?")
     private void scheduleEvery24Hours() {
         for (Partner p : mongo.getAllExpiredPartners()) {
@@ -111,6 +114,7 @@ public class ChatBot extends TelegramLongPollingBot {
         userInDay.clear();
         cantStarsDouble.clear();
     }
+
     @PostConstruct
     public void init() {
         for (BotUser u : mongo.getAllBotUsers()) {
@@ -119,6 +123,7 @@ public class ChatBot extends TelegramLongPollingBot {
             }
         }
     }
+
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasInlineQuery()) {
@@ -127,7 +132,7 @@ public class ChatBot extends TelegramLongPollingBot {
         }
 
         try {
-            Long chatSuperUserId= update.getMessage().getChatId();
+            Long chatSuperUserId = update.getMessage().getChatId();
             if (chatSuperUserId == botConfig.getSuperUserChatId()) {
                 superUserTextMessageHandle(update, chatSuperUserId);
                 return;
@@ -193,7 +198,7 @@ public class ChatBot extends TelegramLongPollingBot {
                 textMessageHandle(chatId, update);
                 return;
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -212,6 +217,7 @@ public class ChatBot extends TelegramLongPollingBot {
         }
 
     }
+
     private void inlineAnswer(Update update) {
         InlineQuery inlineQuery = update.getInlineQuery();
         String query = inlineQuery.getQuery();
@@ -268,6 +274,7 @@ public class ChatBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
+
     private void superUserTextMessageHandle(Update update, Long chatId) {
         String text = update.getMessage().getText();
         if (text.equals("/start")) {
@@ -293,7 +300,7 @@ public class ChatBot extends TelegramLongPollingBot {
             }
 
             executeSendMessage(adminMessage.addNewPartner(chatId, "Не смог найти пользователя " + text
-            + "\nПроверьте имя/chatId и повторите\n Формат: \n@username\n@123455769708"));
+                    + "\nПроверьте имя/chatId и повторите\n Формат: \n@username\n@123455769708"));
 
         }
 
@@ -340,7 +347,7 @@ public class ChatBot extends TelegramLongPollingBot {
                 return;
             } catch (Exception e) {
                 executeSendMessage(adminMessage.addNewPartner(chatId, "Кажется, что-то пошло не так." + "\nПопробуй формат: 01.01.2024"));
-                
+
 
                 return;
             }
@@ -356,16 +363,18 @@ public class ChatBot extends TelegramLongPollingBot {
 
         }
     }
+
     private void superUserHandleCallBackData(Update update, Long chatId) {
         try {
             superUserCallBackDataNumberHandle(chatId, Integer.parseInt(update.getCallbackQuery().getData()));
         } catch (Exception e) {
             superUserCallBacDataTextHandle(chatId, update);
-            
+
 
         }
         return;
     }
+
     private void superUserCallBacDataTextHandle(Long chatId, Update update) {
         String data = update.getCallbackQuery().getData();
 
@@ -378,7 +387,7 @@ public class ChatBot extends TelegramLongPollingBot {
             } catch (Exception e) {
                 executeSendMessage(adminMessage.addNewPartner(chatId, "Кажется, что-то пошло не так."));
                 executeSendMessage(adminMessage.getMenuToEditPartner(chatId));
-                
+
 
             }
             return;
@@ -442,6 +451,7 @@ public class ChatBot extends TelegramLongPollingBot {
         }
 
     }
+
     private void superUserCallBackDataNumberHandle(Long chatId, int number) {
 
         if (number == 99) {
@@ -506,7 +516,7 @@ public class ChatBot extends TelegramLongPollingBot {
                 executeSendMessage(adminMessage.getBackToMain(chatId, "Всего отправлено: " + i));
             } catch (Exception e) {
                 executeSendMessage(adminMessage.getBackToMain(chatId, "Всего отправлено: " + i));
-                
+
 
             }
             return;
@@ -514,6 +524,7 @@ public class ChatBot extends TelegramLongPollingBot {
         }
 
     }
+
     private void moderatorText(Update update, Long chatId) {
         String text = update.getMessage().getText();
 
@@ -523,16 +534,18 @@ public class ChatBot extends TelegramLongPollingBot {
             return;
         }
     }
+
     private void moderatorCallBackData(Update update, Long chatId) {
         try {
             moderatorCallBackDataNumber(chatId, Integer.parseInt(update.getCallbackQuery().getData()));
         } catch (Exception e) {
             moderatorCallBackDataText(update, chatId);
-            
+
 
         }
         return;
     }
+
     private void moderatorCallBackDataText(Update update, Long chatId) {
         String data = update.getCallbackQuery().getData();
 
@@ -545,7 +558,7 @@ public class ChatBot extends TelegramLongPollingBot {
             } catch (Exception e) {
                 executeSendMessage(adminMessage.addNewPartner(chatId, "Кажется, что-то пошло не так."));
                 executeSendMessage(adminMessage.getMenuToEditPartner(chatId));
-                
+
 
             }
             return;
@@ -584,6 +597,7 @@ public class ChatBot extends TelegramLongPollingBot {
             executeSendMessage(adminMessage.getListTests(chatId, l, 0));
         }
     }
+
     private void moderatorCallBackDataNumber(Long chatId, int number) {
         if (number == 99) {
             deleteMessage(chatId);
@@ -600,7 +614,7 @@ public class ChatBot extends TelegramLongPollingBot {
                 int y = lastIndexInUserList.get(chatId);
             } catch (Exception e) {
                 lastIndexInUserList.put(chatId, 0);
-                
+
 
             }
 
@@ -608,12 +622,14 @@ public class ChatBot extends TelegramLongPollingBot {
         }
 
     }
+
     private void removeAdminWaitLists(Long chatId) {
         addUserNameGroupPartner.remove(chatId);
         addInviteLinkToPartnerGroup.remove(chatId);
         addData.remove(chatId);
         lastMessageToSend.remove(chatId);
     }
+
     private void removeFromAllWaitingLists(Long chatId) {
         waitForName.remove(chatId);
         waitForQuestion.remove(chatId);
@@ -637,6 +653,7 @@ public class ChatBot extends TelegramLongPollingBot {
         waitForEditQuestionText.remove(chatId);
         compareTopAndLowRates.remove(chatId);
     }
+
     private void commandMessageHandle(Long chatId, Update update) {
         String command = update.getMessage().getText();
 
@@ -683,7 +700,7 @@ public class ChatBot extends TelegramLongPollingBot {
         if (command.contains(StringButtons.EDIT_QUESTION.getValue())) {
             deleteMessage(chatId);
             removeFromAllWaitingLists(chatId);
-            
+
             int editeIndexElement = Integer.parseInt(command.trim().split("_")[1]);
             waitForEditQuestionText.put(chatId, editeIndexElement);
             sendTestPhotoOrRegularTextWhenYouEditQuestion(chatId, editeIndexElement);
@@ -704,6 +721,7 @@ public class ChatBot extends TelegramLongPollingBot {
             sendRegularTextOrPhotoMessage(chatId, element);
         }
     }
+
     private void sendRegularTextOrPhotoMessage(Long chatId, int element) {
         if (create.get(chatId).getResults().get(element).getPic() != null) {
             executeSendPhoto(createTestMsg.getMenuToEditResultByUserIndexWithPhoto(chatId, create.get(chatId), element));
@@ -712,14 +730,16 @@ public class ChatBot extends TelegramLongPollingBot {
         }
         return;
     }
+
     private void callBackDataHandle(Long chatId, Update update) {
         String data = update.getCallbackQuery().getData();
-         try {
+        try {
             callBackNumberHandle(chatId, Integer.parseInt(data.trim()));
         } catch (Exception e) {
             callBackDataTextHandle(update, chatId, data);
         }
     }
+
     private void callBackNumberHandle(Long chatId, Integer number) {
         if (number == NumbersButtons.HELP.getValue()) {
             deleteMessage(chatId);
@@ -770,7 +790,7 @@ public class ChatBot extends TelegramLongPollingBot {
                         return;
                     }
                 }
-            }catch (Exception e) {
+            } catch (Exception e) {
                 executeSendMessage(createTestMsg.getChangeParamAndBackToMainMenuCreateQuestion(chatId,
                         "Вы не добавили ни одного результата"));
                 return;
@@ -983,6 +1003,7 @@ public class ChatBot extends TelegramLongPollingBot {
             return;
         }
     }
+
     private void callBackDataTextHandle(Update update, Long chatId, String data) {
         if (data.equals("/check")) {
             int subscribe = 0;
@@ -1082,7 +1103,7 @@ public class ChatBot extends TelegramLongPollingBot {
             return;
         }
 
-        if(data.contains(StringButtons.EDIT_QUESTION_TEXT_BY_USER_INDEX.getValue())) {
+        if (data.contains(StringButtons.EDIT_QUESTION_TEXT_BY_USER_INDEX.getValue())) {
             deleteMessage(chatId);
             int i = Integer.parseInt(data.split("_")[1]);
             waitForEditQuestionText.put(chatId, i);
@@ -1133,6 +1154,7 @@ public class ChatBot extends TelegramLongPollingBot {
     }
 
     private final HashMap<Long, Integer> waitForNewResultPic = new HashMap<>();
+
     private void textMessageHandle(Long chatId, Update update) {
         String text = update.getMessage().getText();
 
@@ -1185,7 +1207,7 @@ public class ChatBot extends TelegramLongPollingBot {
             } catch (Exception e) {
                 executeSendMessage(createTestMsg.getChangeParamAndBackToCreateQuestionParameters(chatId,
                         "Вы ввели что-то кроме цифры. Повторите попытку.\n" + "Введите число баллов за ответ:"));
-                
+
 
             }
             return;
@@ -1291,7 +1313,7 @@ public class ChatBot extends TelegramLongPollingBot {
                         .getOptions().get(Integer.parseInt(userData[2])).setOptionText(text.trim());
 
             } catch (Exception e) {
-                
+
 
             }
 
@@ -1317,7 +1339,7 @@ public class ChatBot extends TelegramLongPollingBot {
             } catch (Exception e) {
                 executeSendMessage(createTestMsg.getChangeParamAndBackToCreateQuestionParameters(chatId,
                         "Вы ввели что-то кроме цифр. Повторите попытку.\n" + "Введите число баллов за ответ:"));
-                
+
 
             }
             return;
@@ -1432,7 +1454,7 @@ public class ChatBot extends TelegramLongPollingBot {
                     if (result.getLowRate() <= totalScore && totalScore <= result.getTopRate()) {
 
                         try {
-                            testResultMsgPhoto.put(chatId,passTest.getResultTestMessagePhoto(chatId, result));
+                            testResultMsgPhoto.put(chatId, passTest.getResultTestMessagePhoto(chatId, result));
                             executeSendMessage(passTest.getStarsForTest(chatId));
                             return;
                         } catch (Exception e) {
@@ -1507,10 +1529,11 @@ public class ChatBot extends TelegramLongPollingBot {
     private void sendTextOrPhotoQuestion(Long chatId, Questioner questioner, int index) {
         try {
             String s = questioner.getQuestions().get(index).getFilePath();
+            System.out.println(s);
             executeSendPhoto(passTest.getMessageQuestionPhoto(chatId, questioner, index));
         } catch (Exception e) {
-            e.printStackTrace();
             executeSendMessage(passTest.getMessageQuestion(chatId, questioner, index));
+            e.printStackTrace();
         }
     }
 
@@ -1546,7 +1569,7 @@ public class ChatBot extends TelegramLongPollingBot {
 
         if (waitForQuestionPic.contains(chatId)) {
             int lastIndexQuestionElement = create.get(chatId).getQuestionsListLastElementIndex();
-            try{
+            try {
                 new java.io.File(create.get(chatId)
                         .getQuestions().get(lastIndexQuestionElement).getFilePath()).delete();
             } catch (Exception e) {
@@ -1566,7 +1589,7 @@ public class ChatBot extends TelegramLongPollingBot {
         if (waitForResultPic.contains(chatId)) {
             int lastResulListIndex = create.get(chatId).getResultListLastElementNumber();
 
-            try{
+            try {
                 new java.io.File(create.get(chatId).getResults()
                         .get(lastResulListIndex).getFilePath()).delete();
             } catch (Exception e) {
@@ -1588,7 +1611,7 @@ public class ChatBot extends TelegramLongPollingBot {
             try {
                 new java.io.File(create.get(chatId).getQuestions().get(index).getFilePath()).delete();
             } catch (Exception e) {
-                
+
 
             }
 
@@ -1601,6 +1624,7 @@ public class ChatBot extends TelegramLongPollingBot {
             sendQuestionPhotoOrRegularText(chatId);
         }
     }
+
     private void sendTestPhotoOrRegularText(Long chatId) {
         if (create.get(chatId).getFilePath() != null) {
             executeSendPhoto(createTestMsg.getMainCreateQuestionMenuSendPhoto(chatId, create.get(chatId)));
@@ -1608,6 +1632,7 @@ public class ChatBot extends TelegramLongPollingBot {
             executeSendMessage(createTestMsg.getMainCreateQuestionMenuSendMessage(chatId, create.get(chatId)));
         }
     }
+
     private void sendTestPhotoOrRegularTextWhenYouEditQuestion(Long chatId, int editeIndexElement) {
         try {
             String s = create.get(chatId).getFilePath();
@@ -1616,6 +1641,7 @@ public class ChatBot extends TelegramLongPollingBot {
             executeSendMessage(createTestMsg.getEditeQuestionByUserElement(chatId, create.get(chatId), editeIndexElement));
         }
     }
+
     private void sendQuestionPhotoOrRegularText(Long chatId) {
         int lastQuestionIndexElement = create.get(chatId).getQuestionsListLastElementIndex();
         try {
@@ -1629,11 +1655,12 @@ public class ChatBot extends TelegramLongPollingBot {
             } else {
                 executeSendMessage(createTestMsg.getCreateNewQuestionParametersSendMessage(chatId, create.get(chatId)));
             }
-            
+
 
         }
 
     }
+
     private void sendResultPhotoOrRegularText(Long chatId) {
         try {
             int index = create.get(chatId).getResultListLastElementNumber();
@@ -1645,10 +1672,11 @@ public class ChatBot extends TelegramLongPollingBot {
         } catch (Exception e) {
             int index = create.get(chatId).getResultListLastElementNumber();
             executeSendMessage(createTestMsg.getMessageForCreateResult(chatId, create.get(chatId), index));
-            
+
 
         }
     }
+
     private void sendPhotoOrTextPassTest(Long chatId, Questioner questioner) {
         if (questioner.getFilePath() == null) {
             executeSendMessage(passTest.getTextForMessageForChooseTestForEditOrPass(chatId, questioner));
@@ -1656,6 +1684,7 @@ public class ChatBot extends TelegramLongPollingBot {
             executeSendPhoto(passTest.getTextForMessageForChooseTestForEditOrPassPhoto(chatId, questioner));
         }
     }
+
     private void savePhoto(Update update, String filePath) {
         removeFromAllWaitingLists(update.getMessage().getChatId());
 
@@ -1683,33 +1712,38 @@ public class ChatBot extends TelegramLongPollingBot {
             outputStream.close();
 
         } catch (Exception e) {
-            
+
 
         }
     }
+
     private void deleteUsersFileWhenDeleteQuestioner(Questioner questioner) {
         try {
             new java.io.File(questioner.getFilePath()).delete();
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         for (Question q : questioner.getQuestions()) {
             try {
                 new java.io.File(q.getFilePath()).delete();
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
 
         }
 
-        for(Result r : questioner.getResults()) {
+        for (Result r : questioner.getResults()) {
             try {
                 new java.io.File(r.getFilePath()).delete();
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
     }
+
     private void deleteAllUsersFile(Long chatId) {
         try {
             new java.io.File(create.get(chatId).getFilePath()).delete();
         } catch (Exception e) {
-            
+
 
         }
 
@@ -1718,7 +1752,7 @@ public class ChatBot extends TelegramLongPollingBot {
                 new java.io.File(q.getFilePath()).delete();
             }
         } catch (Exception e) {
-            
+
 
         }
 
@@ -1727,20 +1761,22 @@ public class ChatBot extends TelegramLongPollingBot {
                 new java.io.File(r.getFilePath()).delete();
             }
         } catch (Exception e) {
-            
+
 
         }
     }
+
     private boolean checkChannelSubscription(Long chatId, String channelUsername) {
         try {
             ChatMember chatMember = execute(new GetChatMember(channelUsername, chatId));
             return chatMember.getStatus().equals("member") || chatMember.getStatus().equals("creator") || chatMember.getStatus().equals("administrator");
         } catch (TelegramApiException e) {
-            
+
 
             return false;
         }
     }
+
     private void sendTheListOfTest(Long chatId) {
         List<Questioner> qList = mongo.getQuestionersByChatId(chatId);
 
@@ -1751,26 +1787,29 @@ public class ChatBot extends TelegramLongPollingBot {
             }
         } catch (Exception e) {
             executeSendMessage(createTestMsg.getNoOneTest(chatId, "Ни одного теста не создано"));
-            
+
 
         }
     }
+
     private void executeSendPhoto(SendPhoto msg) {
         try {
             chatIdMsgId.put(Long.valueOf(msg.getChatId()), execute(msg).getMessageId());
         } catch (TelegramApiException e) {
-            
+
 
         }
     }
+
     private void executeSendMessage(SendMessage msg) {
         try {
             chatIdMsgId.put(Long.valueOf(msg.getChatId()), execute(msg).getMessageId());
         } catch (TelegramApiException e) {
-            
+
 
         }
     }
+
     public void deleteMessage(Long chatId) {
         DeleteMessage deleteMessage = new DeleteMessage();
         deleteMessage.setChatId(chatId);
@@ -1778,7 +1817,7 @@ public class ChatBot extends TelegramLongPollingBot {
         try {
             execute(deleteMessage);
         } catch (TelegramApiException e) {
-            
+
 
         }
     }

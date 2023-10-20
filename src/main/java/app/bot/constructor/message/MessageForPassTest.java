@@ -19,7 +19,7 @@ public class MessageForPassTest {
     private PassTheTestKeyBoardsConstructor keyboard;
     @Autowired
     private MongoService mongo;
-   private final StringBuilder builder = new StringBuilder();
+    private final StringBuilder builder = new StringBuilder();
 
     private SendMessage getSendMsgObject(Long chatId, String text, InlineKeyboardMarkup k) {
         SendMessage msg = new SendMessage();
@@ -39,26 +39,23 @@ public class MessageForPassTest {
     }
 
 
-
-
     private String getTextForTestPresentMessage(Questioner questioner) {
         builder.setLength(0);
         builder.append("Тест: ").append(questioner.getName()).append("\n")
                 .append("Вопросов: ").append(questioner.getQuestions().size());
         return builder.toString();
     }
+
     public SendMessage getTextForMessageForChooseTestForEditOrPass(Long chatId, Questioner questioner) {
         return getSendMsgObject(chatId, getTextForTestPresentMessage(questioner),
                 keyboard.getChangeParamsQuestionerOrPassTheTestKeys(questioner.getName(), questioner.getQuestionerId()));
     }
+
     public SendPhoto getTextForMessageForChooseTestForEditOrPassPhoto(Long chatId, Questioner questioner) {
         File file = new File(questioner.getFilePath());
-        return getSendPhotoMsgObject(chatId,getTextForTestPresentMessage(questioner),
+        return getSendPhotoMsgObject(chatId, getTextForTestPresentMessage(questioner),
                 keyboard.getChangeParamsQuestionerOrPassTheTestKeys(questioner.getName(), questioner.getQuestionerId()), file);
     }
-
-
-
 
 
     private String getTextForQuestion(Questioner questioner, int i) {
@@ -69,14 +66,16 @@ public class MessageForPassTest {
     }
 
     public SendMessage getMessageQuestion(Long chatId, Questioner questioner, int i) {
-       return getSendMsgObject(chatId, getTextForQuestion(questioner, i),
+        return getSendMsgObject(chatId, getTextForQuestion(questioner, i),
                 keyboard.getOptions(questioner.getQuestions().get(i).getOptions(), i));
     }
-    public SendPhoto getMessageQuestionPhoto(Long chatId, Questioner questioner, int i) {
-        File file = new File(questioner.getQuestions().get(i).getFilePath());
 
+    public SendPhoto getMessageQuestionPhoto(Long chatId, Questioner questioner, int i) {
+
+        File file = new File(questioner.getQuestions().get(i).getFilePath());
         return getSendPhotoMsgObject(chatId, getTextForQuestion(questioner, i),
                 keyboard.getOptions(questioner.getQuestions().get(i).getOptions(), i), file);
+
     }
 
     private String getResultText(Result result) {
@@ -84,9 +83,11 @@ public class MessageForPassTest {
         builder.append("Ваш результат:\n").append(result.getResultText());
         return builder.toString();
     }
+
     public SendMessage getResultTestMessage(Long chatId, Result result) {
         return getSendMsgObject(chatId, getResultText(result), null);
     }
+
     public SendPhoto getResultTestMessagePhoto(Long chatId, Result result) {
         File file = new File(result.getFilePath());
         return getSendPhotoMsgObject(chatId, getResultText(result), null, file);
