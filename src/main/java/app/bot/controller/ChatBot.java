@@ -1333,11 +1333,19 @@ public class ChatBot extends TelegramLongPollingBot {
 
                 create.get(chatId).getQuestions().get(questionIndex).getOptions().get(lastOptElement).setScore(score);
                 removeFromAllWaitingLists(chatId);
-                executeSendMessage(createTestMsg.getEditeQuestionByUserElement(chatId, create.get(chatId), questionIndex));
+                try {
+                    executeSendMessage(createTestMsg.getEditeQuestionByUserElement(chatId, create.get(chatId), questionIndex));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             } catch (Exception e) {
+                int questionIndex = waitForNewScoreFromEditKeyBoard.get(chatId);
+                int lastOptElement = create.get(chatId).getQuestions().get(questionIndex).getOptionsLastElementIndex();
+                String answer = create.get(chatId).getQuestions().get(questionIndex).getOptions().get(lastOptElement).getOptionText();
                 executeSendMessage(createTestMsg.getChangeParamAndBackToCreateQuestionParameters(chatId,
-                        "Вы ввели что-то кроме цифр. Повторите попытку.\nВведите число баллов за ответ:"));
-                
+                        "Вы ввели что-то кроме цифр. Повторите попытку." +
+                                "\nВведите число баллов за ответ: " + answer));
+                e.printStackTrace();
 
             }
             return;
