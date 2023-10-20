@@ -12,8 +12,7 @@ public enum StringButtons {
     EDIT_QUESTION_TEXT_BY_USER_INDEX("/editeQuestionText_"),
     EDIT_OPTION_TEXT_BY_USER_INDEX("/editeOptText_"),
     DELETE_OPTION_AND_SCORE_BY_USER_INDEX("/delOption_"),
-    EDIT_SCORE_OPTION_BY_USER_INDEX("/editeOptScore_"),
-    CALL_MY_TEST_TO_PASS("passTest_");
+    EDIT_SCORE_OPTION_BY_USER_INDEX("/editeOptScore_");
     private final String string;
 
     StringButtons(String string) {
