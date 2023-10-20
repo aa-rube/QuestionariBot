@@ -1355,9 +1355,10 @@ public class ChatBot extends TelegramLongPollingBot {
                 int lastOptElement = create.get(chatId).getQuestions().get(questionIndex).getOptionsLastElementIndex();
 
                 create.get(chatId).getQuestions().get(questionIndex).getOptions().get(lastOptElement).setScore(score);
-                removeFromAllWaitingLists(chatId);
 
                     executeSendMessage(createTestMsg.getEditeQuestionByUserElement(chatId, create.get(chatId), questionIndex));
+                removeFromAllWaitingLists(chatId);
+
 
             } catch (Exception e) {
                 int questionIndex = waitForNewScoreFromEditKeyBoard.get(chatId);

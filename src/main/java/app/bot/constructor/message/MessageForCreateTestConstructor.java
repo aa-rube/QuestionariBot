@@ -138,6 +138,7 @@ public class MessageForCreateTestConstructor {
                 keyboards.getEditQuestionUserIndexElement(editeIndexElement), file);
     }
     public SendMessage getEditeQuestionByUserElement(Long chatId, Questioner questioner, int editeIndexElement) {
+        System.out.println("getEditeQuestionByUserElement");
         StringBuilder builder = new StringBuilder();
         try {
             if (!questioner.getQuestions().isEmpty()) {
