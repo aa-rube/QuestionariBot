@@ -1347,7 +1347,7 @@ public class ChatBot extends TelegramLongPollingBot {
 
         if (waitForNewScoreFromEditKeyBoard.containsKey(chatId)) {
             deleteMessage(chatId);
-            
+            System.out.println("waitForNewScoreFromEditKeyBoard.get(chatId): " + waitForNewScoreFromEditKeyBoard.get(chatId));
             try {
                 int score = Integer.parseInt(text.trim());
                 int questionIndex = waitForNewScoreFromEditKeyBoard.get(chatId);
