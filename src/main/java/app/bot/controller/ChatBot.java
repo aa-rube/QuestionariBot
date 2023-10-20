@@ -1356,7 +1356,7 @@ public class ChatBot extends TelegramLongPollingBot {
 
                 create.get(chatId).getQuestions().get(questionIndex).getOptions().get(lastOptElement).setScore(score);
 
-                    executeSendMessage(createTestMsg.getEditeQuestionByUserElement(chatId, create.get(chatId), questionIndex));
+                executeSendMessage(createTestMsg.getEditeQuestionByUserElement(chatId, create.get(chatId), questionIndex));
                 removeFromAllWaitingLists(chatId);
 
 
@@ -1532,7 +1532,7 @@ public class ChatBot extends TelegramLongPollingBot {
             System.out.println(s);
             executeSendPhoto(passTest.getMessageQuestionPhoto(chatId, questioner, index));
         } catch (Exception e) {
-        executeSendMessage(passTest.getMessageQuestion(chatId, questioner, index));
+            executeSendMessage(passTest.getMessageQuestion(chatId, questioner, index));
             e.printStackTrace();
         }
     }
@@ -1806,7 +1806,7 @@ public class ChatBot extends TelegramLongPollingBot {
             chatIdMsgId.put(Long.valueOf(msg.getChatId()), execute(msg).getMessageId());
         } catch (TelegramApiException e) {
 
-
+            e.printStackTrace();
         }
     }
 
