@@ -1527,14 +1527,14 @@ public class ChatBot extends TelegramLongPollingBot {
     }
 
     private void sendTextOrPhotoQuestion(Long chatId, Questioner questioner, int index) {
-        try {
-            String s = questioner.getQuestions().get(index).getFilePath();
-            System.out.println(s);
-            executeSendPhoto(passTest.getMessageQuestionPhoto(chatId, questioner, index));
-        } catch (Exception e) {
+//        try {
+//            String s = questioner.getQuestions().get(index).getFilePath();
+//            System.out.println(s);
+//            executeSendPhoto(passTest.getMessageQuestionPhoto(chatId, questioner, index));
+//        } catch (Exception e) {
             executeSendMessage(passTest.getMessageQuestion(chatId, questioner, index));
-            e.printStackTrace();
-        }
+//            e.printStackTrace();
+//        }
     }
 
     private void photoMessageHandle(Long chatId, Update update) {
