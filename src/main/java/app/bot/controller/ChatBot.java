@@ -1788,8 +1788,6 @@ public class ChatBot extends TelegramLongPollingBot {
             }
         } catch (Exception e) {
             executeSendMessage(createTestMsg.getNoOneTest(chatId, "Ни одного теста не создано"));
-
-
         }
     }
 
@@ -1833,12 +1831,12 @@ public class ChatBot extends TelegramLongPollingBot {
                 try {
                     execute(deleteMessage);
                 } catch (TelegramApiException e) {
+                    e.printStackTrace();
                 }
             }
         }
 
         String originalText = msg.getCaption();
-
         if(originalText.length() > 1024) {
             List<String> parts = splitString(originalText, 1024);
             msg.setCaption(parts.get(0));
@@ -1854,7 +1852,7 @@ public class ChatBot extends TelegramLongPollingBot {
                 doubleMsg.put(Long.valueOf(msg.getChatId()), intList);
 
             } catch (TelegramApiException e) {
-
+                e.printStackTrace();
             }
             return;
         }
@@ -1862,6 +1860,7 @@ public class ChatBot extends TelegramLongPollingBot {
         try {
             chatIdMsgId.put(Long.valueOf(msg.getChatId()), execute(msg).getMessageId());
         } catch (TelegramApiException e) {
+            e.printStackTrace();
         }
     }
 
@@ -1881,6 +1880,7 @@ public class ChatBot extends TelegramLongPollingBot {
                 try {
                     execute(deleteMessage);
                 } catch (TelegramApiException e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -1900,7 +1900,7 @@ public class ChatBot extends TelegramLongPollingBot {
                 doubleMsg.put(Long.valueOf(msg.getChatId()), intList);
 
             } catch (TelegramApiException e) {
-
+                e.printStackTrace();
             }
             return;
         }
@@ -1908,7 +1908,7 @@ public class ChatBot extends TelegramLongPollingBot {
         try {
             chatIdMsgId.put(Long.valueOf(msg.getChatId()), execute(msg).getMessageId());
         } catch (TelegramApiException e) {
-
+            e.printStackTrace();
         }
     }
 
@@ -1921,6 +1921,7 @@ public class ChatBot extends TelegramLongPollingBot {
         try {
             execute(deleteMessage);
         } catch (TelegramApiException e) {
+            e.printStackTrace();
         }
     }
 }
