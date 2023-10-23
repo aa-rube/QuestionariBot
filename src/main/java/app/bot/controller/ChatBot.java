@@ -128,6 +128,7 @@ public class ChatBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        System.out.println(update);
         if (update.hasInlineQuery()) {
             inlineAnswer(update);
             return;
@@ -1885,6 +1886,10 @@ public class ChatBot extends TelegramLongPollingBot {
                 }
             }
         }
+
+
+
+
 
         if(originalText.length() > 4000) {
             List<String> parts = splitString(originalText, 4000);
