@@ -94,6 +94,7 @@ public class ChatBot extends TelegramLongPollingBot {
     private final HashMap<Long, SendPhoto> testResultMsgPhoto = new HashMap<>();
     private final HashMap<Long, Integer> compareTopAndLowRates = new HashMap<>();
     private final HashMap<Long, HashSet<String>> cantStarsDouble = new HashMap<>();
+    private final HashMap<Long, List<Integer>> doubleMsg = new HashMap<>();
     private final String dataPath = "data/";
 
     @Override
@@ -1792,23 +1793,89 @@ public class ChatBot extends TelegramLongPollingBot {
         }
     }
 
+    private List<String> splitString(String originalText, int maxLength) {
+        List<String> parts = new ArrayList<>();
+        int length = Math.min(originalText.length(), maxLength);
+        String part1 = originalText.substring(0, length);
+        String part2 = originalText.substring(length);
+
+        if (part2.length() > 0) {
+            int index = part2.indexOf("\n");
+            if (index > 0 && index < maxLength * 0.3) {
+                parts.add(part1 + part2.substring(0, index));
+                parts.addAll(splitString(part2.substring(index + 1), maxLength));
+            } else {
+                index = part2.lastIndexOf(" ", maxLength);
+                if (index == -1) {
+                    index = maxLength;
+                }
+                parts.add(part1 + part2.substring(0, index));
+                parts.addAll(splitString(part2.substring(index), maxLength));
+            }
+        } else {
+            parts.add(part1);
+        }
+        return parts;
+    }
+
+
+
     private void executeSendPhoto(SendPhoto msg) {
+        String originalText = msg.getCaption();
+
+        if(originalText.length() > 1024) {
+            List<String> parts = splitString(originalText, 1024);
+            msg.setCaption(parts.get(0));
+
+            try {
+                List<Integer> intList = new ArrayList<>();
+                intList.add(execute(msg).getMessageId());
+
+                SendMessage second = new SendMessage();
+                second.setChatId(Long.valueOf(msg.getChatId()));
+                second.setText(parts.get(1));
+                intList.add(execute(second).getMessageId());
+                doubleMsg.put(Long.valueOf(msg.getChatId()), intList);
+
+            } catch (TelegramApiException e) {
+
+            }
+            return;
+        }
+
         try {
             chatIdMsgId.put(Long.valueOf(msg.getChatId()), execute(msg).getMessageId());
         } catch (TelegramApiException e) {
-
-
         }
     }
 
     private void executeSendMessage(SendMessage msg) {
+
+        if (doubleMsg.containsKey(Long.valueOf(msg.getChatId()))) {
+            DeleteMessage deleteMessage = new DeleteMessage();
+            Long chatId = Long.valueOf(msg.getChatId());
+            deleteMessage.setChatId(chatId);
+
+            for(Integer i : doubleMsg.get(chatId)) {
+
+                deleteMessage.setMessageId(i);
+                doubleMsg.remove(chatId);
+
+                try {
+                    execute(deleteMessage);
+                } catch (TelegramApiException e) {
+                }
+            }
+        }
+
         try {
             chatIdMsgId.put(Long.valueOf(msg.getChatId()), execute(msg).getMessageId());
         } catch (TelegramApiException e) {
 
-            e.printStackTrace();
         }
     }
+
+
 
     public void deleteMessage(Long chatId) {
         DeleteMessage deleteMessage = new DeleteMessage();
@@ -1817,8 +1884,6 @@ public class ChatBot extends TelegramLongPollingBot {
         try {
             execute(deleteMessage);
         } catch (TelegramApiException e) {
-
-
         }
     }
 }
