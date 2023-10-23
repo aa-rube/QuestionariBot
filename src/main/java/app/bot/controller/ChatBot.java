@@ -29,6 +29,7 @@ import org.telegram.telegrambots.meta.api.objects.inlinequery.inputmessageconten
 import org.telegram.telegrambots.meta.api.objects.inlinequery.result.InlineQueryResult;
 import org.telegram.telegrambots.meta.api.objects.inlinequery.result.InlineQueryResultArticle;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -1885,10 +1886,11 @@ public class ChatBot extends TelegramLongPollingBot {
             }
         }
 
-        if(originalText.length() > 3000) {
-            List<String> parts = splitString(originalText, 3000);
+        if(originalText.length() > 4000) {
+            List<String> parts = splitString(originalText, 4000);
             msg.setText(parts.get(0));
-
+            ReplyKeyboard markup = msg.getReplyMarkup();
+            msg.setReplyMarkup(null);
             try {
                 List<Integer> intList = new ArrayList<>();
                 intList.add(execute(msg).getMessageId());
@@ -1896,6 +1898,7 @@ public class ChatBot extends TelegramLongPollingBot {
                 SendMessage second = new SendMessage();
                 second.setChatId(Long.valueOf(msg.getChatId()));
                 second.setText(parts.get(1));
+                second.setReplyMarkup(markup);
                 intList.add(execute(second).getMessageId());
                 doubleMsg.put(Long.valueOf(msg.getChatId()), intList);
 
