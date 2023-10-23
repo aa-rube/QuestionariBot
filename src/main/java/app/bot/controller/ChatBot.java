@@ -1885,7 +1885,7 @@ public class ChatBot extends TelegramLongPollingBot {
             }
         }
 
-        if(originalText.length() > 4096) {
+        if(originalText.length() > 3000) {
             List<String> parts = splitString(originalText, 3000);
             msg.setText(parts.get(0));
 
