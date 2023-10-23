@@ -1818,9 +1818,25 @@ public class ChatBot extends TelegramLongPollingBot {
         return parts;
     }
 
-
-
     private void executeSendPhoto(SendPhoto msg) {
+
+        if (doubleMsg.containsKey(Long.valueOf(msg.getChatId()))) {
+            DeleteMessage deleteMessage = new DeleteMessage();
+            Long chatId = Long.valueOf(msg.getChatId());
+            deleteMessage.setChatId(chatId);
+
+            for(Integer i : doubleMsg.get(chatId)) {
+
+                deleteMessage.setMessageId(i);
+                doubleMsg.remove(chatId);
+
+                try {
+                    execute(deleteMessage);
+                } catch (TelegramApiException e) {
+                }
+            }
+        }
+
         String originalText = msg.getCaption();
 
         if(originalText.length() > 1024) {
@@ -1850,10 +1866,11 @@ public class ChatBot extends TelegramLongPollingBot {
     }
 
     private void executeSendMessage(SendMessage msg) {
+        Long chatId = Long.valueOf(msg.getChatId());
+        String originalText = msg.getText();
 
-        if (doubleMsg.containsKey(Long.valueOf(msg.getChatId()))) {
+        if (doubleMsg.containsKey(chatId)) {
             DeleteMessage deleteMessage = new DeleteMessage();
-            Long chatId = Long.valueOf(msg.getChatId());
             deleteMessage.setChatId(chatId);
 
             for(Integer i : doubleMsg.get(chatId)) {
@@ -1866,6 +1883,26 @@ public class ChatBot extends TelegramLongPollingBot {
                 } catch (TelegramApiException e) {
                 }
             }
+        }
+
+        if(originalText.length() > 4096) {
+            List<String> parts = splitString(originalText, 4096);
+            msg.setText(parts.get(0));
+
+            try {
+                List<Integer> intList = new ArrayList<>();
+                intList.add(execute(msg).getMessageId());
+
+                SendMessage second = new SendMessage();
+                second.setChatId(Long.valueOf(msg.getChatId()));
+                second.setText(parts.get(1));
+                intList.add(execute(second).getMessageId());
+                doubleMsg.put(Long.valueOf(msg.getChatId()), intList);
+
+            } catch (TelegramApiException e) {
+
+            }
+            return;
         }
 
         try {
