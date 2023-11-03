@@ -29,12 +29,12 @@ public class MessageForPassTest {
         return msg;
     }
 
-    private SendPhoto getSendPhotoMsgObject(Long chatId, String text, InlineKeyboardMarkup kb, File file) {
+    private SendPhoto getSendPhotoMsgObject(Long chatId, String text, InlineKeyboardMarkup kb, String fileId) {
         SendPhoto msg = new SendPhoto();
         msg.setChatId(chatId);
         msg.setCaption(text);
         msg.setReplyMarkup(kb);
-        msg.setPhoto(new InputFile(file));
+        msg.setPhoto(new InputFile(fileId));
         return msg;
     }
 
@@ -52,9 +52,9 @@ public class MessageForPassTest {
     }
 
     public SendPhoto getTextForMessageForChooseTestForEditOrPassPhoto(Long chatId, Questioner questioner) {
-        File file = new File(questioner.getFilePath());
+        String fileId = questioner.getFilePath();
         return getSendPhotoMsgObject(chatId, getTextForTestPresentMessage(questioner),
-                keyboard.getChangeParamsQuestionerOrPassTheTestKeys(questioner.getName(), questioner.getQuestionerId()), file);
+                keyboard.getChangeParamsQuestionerOrPassTheTestKeys(questioner.getName(), questioner.getQuestionerId()), fileId);
     }
 
 
@@ -72,9 +72,9 @@ public class MessageForPassTest {
 
     public SendPhoto getMessageQuestionPhoto(Long chatId, Questioner questioner, int i) {
 
-        File file = new File(questioner.getQuestions().get(i).getFilePath());
+        String fileId = questioner.getQuestions().get(i).getFilePath();
         return getSendPhotoMsgObject(chatId, getTextForQuestion(questioner, i),
-                keyboard.getOptions(questioner.getQuestions().get(i).getOptions(), i), file);
+                keyboard.getOptions(questioner.getQuestions().get(i).getOptions(), i), fileId);
 
     }
 
@@ -89,8 +89,8 @@ public class MessageForPassTest {
     }
 
     public SendPhoto getResultTestMessagePhoto(Long chatId, Result result) {
-        File file = new File(result.getFilePath());
-        return getSendPhotoMsgObject(chatId, getResultText(result), null, file);
+        String fileId = result.getFilePath();
+        return getSendPhotoMsgObject(chatId, getResultText(result), null, fileId);
     }
 
     public SendMessage getStarsForTest(Long chatId) {
