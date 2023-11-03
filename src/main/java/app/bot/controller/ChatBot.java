@@ -129,6 +129,7 @@ public class ChatBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         System.out.println(update);
+
         if (update.hasInlineQuery()) {
             inlineAnswer(update);
             return;
