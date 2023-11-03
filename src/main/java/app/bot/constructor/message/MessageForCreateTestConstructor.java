@@ -26,12 +26,12 @@ public class MessageForCreateTestConstructor {
         msg.setReplyMarkup(kb);
         return msg;
     }
-    private SendPhoto getSendPhotoMsgObject(Long chatId, String text, InlineKeyboardMarkup kb, File file) {
+    private SendPhoto getSendPhotoMsgObject(Long chatId, String text, InlineKeyboardMarkup kb, String fileId) {
         SendPhoto msg = new SendPhoto();
         msg.setChatId(chatId);
         msg.setCaption(text);
         msg.setReplyMarkup(kb);
-        msg.setPhoto(new InputFile(file));
+        msg.setPhoto(new InputFile(fileId));
         return msg;
     }
 
@@ -83,21 +83,21 @@ public class MessageForCreateTestConstructor {
         return builder.toString();
     }
     public SendPhoto getCreateNewQuestionParametersSendPhoto(Long chatId, Questioner questioner, int lastIndex) {
-        File file;
+        String fileId;
         try {
-            file = new File(questioner.getQuestions().get(lastIndex).getFilePath());
+            fileId = questioner.getQuestions().get(lastIndex).getFilePath();
         } catch (Exception e) {
-            file = null;
+            fileId = null;
         }
         return getSendPhotoMsgObject(chatId, getQuestionAndOptionsList(questioner),
-                keyboards.getCreateQuestionMenuKeyboard(), file);
+                keyboards.getCreateQuestionMenuKeyboard(), fileId);
     }
     public SendMessage getCreateNewQuestionParametersSendMessage(Long chatId, Questioner questioner) {
         return getSendMsgObject(chatId, getQuestionAndOptionsList(questioner), keyboards.getCreateQuestionMenuKeyboard());
     }
     public SendPhoto getEditeQuestionByUserElementWithPhoto(Long chatId, Questioner questioner, int editeIndexElement) {
         StringBuilder builder = new StringBuilder();
-        File file = new File(questioner.getQuestions().get(editeIndexElement).getFilePath());
+        String fileId = questioner.getQuestions().get(editeIndexElement).getFilePath();
         try {
             if (!questioner.getQuestions().isEmpty()) {
                 builder.append("\uD83D\uDCDDРЕДАКТИРУЕМ ВОПРОС:\n\"")
@@ -123,20 +123,21 @@ public class MessageForCreateTestConstructor {
                 builder.setLength(0);
                 builder.append("Вопросы еще не добавлены");
                 return getSendPhotoMsgObject(chatId, builder.toString(),
-                        keyboards.getEditQuestionUserIndexElement(editeIndexElement), file);
+                        keyboards.getEditQuestionUserIndexElement(editeIndexElement), fileId);
 
             }
         } catch (Exception e) {
             builder.setLength(0);
             builder.append("Вопросы еще не добавлены");
             return getSendPhotoMsgObject(chatId, builder.toString(),
-                    keyboards.getEditQuestionUserIndexElement(editeIndexElement), file);
+                    keyboards.getEditQuestionUserIndexElement(editeIndexElement), fileId);
 
         }
 
         return getSendPhotoMsgObject(chatId, builder.toString(),
-                keyboards.getEditQuestionUserIndexElement(editeIndexElement), file);
+                keyboards.getEditQuestionUserIndexElement(editeIndexElement), fileId);
     }
+
     public SendMessage getEditeQuestionByUserElement(Long chatId, Questioner questioner, int editeIndexElement) {
 
         StringBuilder builder = new StringBuilder();
@@ -200,9 +201,8 @@ public class MessageForCreateTestConstructor {
         return builder.toString();
     }
     public SendPhoto getMainCreateQuestionMenuSendPhoto(Long chatId, Questioner questioner) {
-        File file = new File(questioner.getFilePath());
         return getSendPhotoMsgObject(chatId, mainMenuCreateQuestionText(questioner),
-                keyboards.getMainMenuCreateQuestionsAndOtherParameters(), file);
+                keyboards.getMainMenuCreateQuestionsAndOtherParameters(), questioner.getFilePath());
     }
     public SendMessage getMainCreateQuestionMenuSendMessage(Long chatId, Questioner questioner) {
         return getSendMsgObject(chatId, mainMenuCreateQuestionText(questioner), keyboards.getMainMenuCreateQuestionsAndOtherParameters());
@@ -238,9 +238,9 @@ public class MessageForCreateTestConstructor {
         return getSendMsgObject(chatId, getTextForCreateResult(questioner, lastResultIndex), keyboards.getMainKeyboardForCreateResults());
     }
     public SendPhoto getMessageForCreateResultAndSendPhoto(Long chatId, Questioner questioner, int lastResultIndex) {
-        File file = new File(questioner.getResults().get(lastResultIndex).getFilePath());
+        String fileId = questioner.getResults().get(lastResultIndex).getFilePath();
         return getSendPhotoMsgObject(chatId, getTextForCreateResult(questioner, lastResultIndex),
-                keyboards.getMainKeyboardForCreateResults(), file);
+                keyboards.getMainKeyboardForCreateResults(), fileId);
     }
 
 
@@ -331,10 +331,10 @@ public class MessageForCreateTestConstructor {
                 + "Нижняя граница: " + questioner.getResults().get(element).getLowRate() + "\n";
     }
     public SendPhoto getMenuToEditResultByUserIndexWithPhoto(Long chatId,Questioner questioner,  int element) {
-        File file = new File(questioner.getResults().get(element).getFilePath());
+        String fileId = questioner.getResults().get(element).getFilePath();
         return getSendPhotoMsgObject(chatId,
                 getStringForMenuToEditResultByUserIndex(questioner, element),
-                keyboards.getEditResultByUserElementCommand(element), file);
+                keyboards.getEditResultByUserElementCommand(element), fileId);
     }
     public SendMessage getMenuToEditResultByUserIndex(Long chatId,Questioner questioner,  int element) {
         return getSendMsgObject(chatId,

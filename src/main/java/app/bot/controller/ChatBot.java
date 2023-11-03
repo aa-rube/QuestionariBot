@@ -96,7 +96,7 @@ public class ChatBot extends TelegramLongPollingBot {
     private final HashMap<Long, Integer> compareTopAndLowRates = new HashMap<>();
     private final HashMap<Long, HashSet<String>> cantStarsDouble = new HashMap<>();
     private final HashMap<Long, List<Integer>> doubleMsg = new HashMap<>();
-    private final String dataPath = "data/";
+    private final HashMap<Long, Integer> waitForNewResultPic = new HashMap<>();
 
     @Override
     public String getBotUsername() {
@@ -339,7 +339,6 @@ public class ChatBot extends TelegramLongPollingBot {
         if (addData.contains(chatId)) {
             deleteMessage(chatId);
             try {
-                deleteAllUsersFile(chatId);
                 removeAdminWaitLists(chatId);
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
                 LocalDate expiredDate = LocalDate.parse(text, formatter);
@@ -812,7 +811,6 @@ public class ChatBot extends TelegramLongPollingBot {
             mongo.saveQuestioner(q);
             create.remove(chatId);
             removeFromAllWaitingLists(chatId);
-            //deleteAllUsersFile(chatId);
             executeSendMessage(createTestMsg.getWelcomeMessage(chatId));
             return;
         }
@@ -836,7 +834,6 @@ public class ChatBot extends TelegramLongPollingBot {
         if (number == NumbersButtons.BACK_TO_START_MENU.getValue()) {
             deleteMessage(chatId);
             removeFromAllWaitingLists(chatId);
-            deleteAllUsersFile(chatId);
             create.remove(chatId);
             executeSendMessage(createTestMsg.getWelcomeMessage(chatId));
             return;
@@ -1037,7 +1034,6 @@ public class ChatBot extends TelegramLongPollingBot {
         if (data.contains("removeT_")) {
             deleteMessage(chatId);
             String questionerId = data.split("_")[1];
-            deleteUsersFileWhenDeleteQuestioner(mongo.getQuestionerByQuestionerId(questionerId));
 
             mongo.deleteQuestionerByQuestionerId(questionerId);
             sendTheListOfTest(chatId);
@@ -1157,7 +1153,6 @@ public class ChatBot extends TelegramLongPollingBot {
         passTheTestHandle(chatId, data);
     }
 
-    private final HashMap<Long, Integer> waitForNewResultPic = new HashMap<>();
 
     private void textMessageHandle(Long chatId, Update update) {
         String text = update.getMessage().getText();
@@ -1542,19 +1537,22 @@ public class ChatBot extends TelegramLongPollingBot {
     }
 
     private void photoMessageHandle(Long chatId, Update update) {
+        SendPhoto photo = new SendPhoto();
+        photo.setChatId(-1001996648766L);
+        photo.setPhoto(new InputFile(update.getMessage().getPhoto().get(0).getFileId()));
+        try {
+            execute(photo);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
 
         if (waitForNewResultPic.containsKey(chatId)) {
             deleteMessage(chatId);
             int index = waitForNewResultPic.get(chatId);
 
-            String filePath = dataPath + chatId + "_resultPic_" + System.currentTimeMillis() + index + ".jpg";
-            try {
-                new java.io.File(create.get(chatId).getResults().get(index).getFilePath()).delete();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            savePhoto(update, filePath);
-            create.get(chatId).getResults().get(index).setFilePath(filePath);
+            String fileId = update.getMessage().getPhoto().get(0).getFileId();
+
+            create.get(chatId).getResults().get(index).setFilePath(fileId);
             waitForNewResultPic.remove(chatId);
             removeFromAllWaitingLists(chatId);
             sendRegularTextOrPhotoMessage(chatId, index);
@@ -1563,10 +1561,9 @@ public class ChatBot extends TelegramLongPollingBot {
 
         if (waitForMainTestPic.contains(chatId)) {
 
-            String filePath = dataPath + chatId + "_main_" + System.currentTimeMillis() + ".jpg";
+            String filePath = update.getMessage().getPhoto().get(0).getFileId();
             create.get(chatId).setFilePath(filePath);
 
-            savePhoto(update, filePath);
             create.get(chatId).setFilePath(filePath);
             sendTestPhotoOrRegularText(chatId);
         }
@@ -1581,10 +1578,9 @@ public class ChatBot extends TelegramLongPollingBot {
             }
 
 
-            String filePath = dataPath + chatId + "_question_pic_" + System.currentTimeMillis() + lastIndexQuestionElement + ".jpg";
+            String filePath = update.getMessage().getPhoto().get(0).getFileId();
             create.get(chatId).getQuestions().get(lastIndexQuestionElement).setFilePath(filePath);
 
-            savePhoto(update, filePath);
             create.get(chatId).getQuestions().get(lastIndexQuestionElement).setPic(new java.io.File(filePath));
             sendQuestionPhotoOrRegularText(chatId);
             removeFromAllWaitingLists(chatId);
@@ -1593,17 +1589,9 @@ public class ChatBot extends TelegramLongPollingBot {
         if (waitForResultPic.contains(chatId)) {
             int lastResulListIndex = create.get(chatId).getResultListLastElementNumber();
 
-            try {
-                new java.io.File(create.get(chatId).getResults()
-                        .get(lastResulListIndex).getFilePath()).delete();
-            } catch (Exception e) {
-
-            }
-
-            String filePath = dataPath + chatId + "_resultPic_" + System.currentTimeMillis() + lastResulListIndex + ".jpg";
+            String filePath = update.getMessage().getPhoto().get(0).getFileId();
             create.get(chatId).getResults().get(lastResulListIndex).setFilePath(filePath);
 
-            savePhoto(update, filePath);
             create.get(chatId).getResults().get(lastResulListIndex).setPic(new java.io.File(filePath));
             sendResultPhotoOrRegularText(chatId);
             removeFromAllWaitingLists(chatId);
@@ -1612,17 +1600,11 @@ public class ChatBot extends TelegramLongPollingBot {
         if (waitForEditQuestionPic.containsKey(chatId)) {
             deleteMessage(chatId);
             int index = waitForEditQuestionPic.get(chatId);
-            try {
-                new java.io.File(create.get(chatId).getQuestions().get(index).getFilePath()).delete();
-            } catch (Exception e) {
 
 
-            }
-
-            String filePath = dataPath + chatId + "_question_pic_" + System.currentTimeMillis() + index + ".jpg";
+            String filePath = update.getMessage().getPhoto().get(0).getFileId();
             create.get(chatId).getQuestions().get(index).setFilePath(filePath);
 
-            savePhoto(update, filePath);
             create.get(chatId).getQuestions().get(index).setPic(new java.io.File(filePath));
             removeFromAllWaitingLists(chatId);
             sendQuestionPhotoOrRegularText(chatId);
@@ -1649,9 +1631,8 @@ public class ChatBot extends TelegramLongPollingBot {
     private void sendQuestionPhotoOrRegularText(Long chatId) {
         int lastQuestionIndexElement = create.get(chatId).getQuestionsListLastElementIndex();
         try {
-            create.get(chatId).getQuestions().get(lastQuestionIndexElement).getPic().getName();
+            String fileId = create.get(chatId).getQuestions().get(lastQuestionIndexElement).getPic().getName();
             executeSendPhoto(createTestMsg.getCreateNewQuestionParametersSendPhoto(chatId, create.get(chatId), lastQuestionIndexElement));
-
 
         } catch (Exception e) {
             if (createTestMsg.getCreateNewQuestionParametersSendMessage(chatId, create.get(chatId)).getText().equals("Вопросы еще не добавлены")) {
@@ -1682,6 +1663,7 @@ public class ChatBot extends TelegramLongPollingBot {
     }
 
     private void sendPhotoOrTextPassTest(Long chatId, Questioner questioner) {
+
         if (questioner.getFilePath() == null) {
             executeSendMessage(passTest.getTextForMessageForChooseTestForEditOrPass(chatId, questioner));
         } else {
@@ -1689,86 +1671,6 @@ public class ChatBot extends TelegramLongPollingBot {
         }
     }
 
-    private void savePhoto(Update update, String filePath) {
-        removeFromAllWaitingLists(update.getMessage().getChatId());
-
-        List<PhotoSize> photos = update.getMessage().getPhoto();
-        PhotoSize largestPhoto = photos.get(photos.size() - 1);
-        String fileId = largestPhoto.getFileId();
-        GetFile getFile = new GetFile();
-        getFile.setFileId(fileId);
-
-        try {
-            File file = execute(getFile);
-            String fileUrl = "https://api.telegram.org/file/bot" + getBotToken() + "/" + file.getFilePath();
-
-            URL url = new URL(fileUrl);
-            InputStream inputStream = url.openStream();
-
-            FileOutputStream outputStream = new FileOutputStream(filePath);
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
-
-            inputStream.close();
-            outputStream.close();
-
-        } catch (Exception e) {
-
-
-        }
-    }
-
-    private void deleteUsersFileWhenDeleteQuestioner(Questioner questioner) {
-        try {
-            new java.io.File(questioner.getFilePath()).delete();
-        } catch (Exception e) {
-        }
-
-        for (Question q : questioner.getQuestions()) {
-            try {
-                new java.io.File(q.getFilePath()).delete();
-            } catch (Exception e) {
-            }
-
-        }
-
-        for (Result r : questioner.getResults()) {
-            try {
-                new java.io.File(r.getFilePath()).delete();
-            } catch (Exception e) {
-            }
-        }
-    }
-
-    private void deleteAllUsersFile(Long chatId) {
-        try {
-            new java.io.File(create.get(chatId).getFilePath()).delete();
-        } catch (Exception e) {
-
-
-        }
-
-        try {
-            for (Question q : create.get(chatId).getQuestions()) {
-                new java.io.File(q.getFilePath()).delete();
-            }
-        } catch (Exception e) {
-
-
-        }
-
-        try {
-            for (Result r : create.get(chatId).getResults()) {
-                new java.io.File(r.getFilePath()).delete();
-            }
-        } catch (Exception e) {
-
-
-        }
-    }
 
     private boolean checkChannelSubscription(Long chatId, String channelUsername) {
         try {
@@ -1920,8 +1822,6 @@ public class ChatBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-
-
 
     public void deleteMessage(Long chatId) {
         DeleteMessage deleteMessage = new DeleteMessage();
