@@ -990,7 +990,7 @@ public class ChatBot extends TelegramLongPollingBot {
         } catch (Exception e) {
             executeSendMessage(createTestMsg.getChangeParamAndBackToMainMenuCreateQuestion(chatId,
                     "Вы не добавили ни одного результата"));
-            return
+            return;
         }
 
 
