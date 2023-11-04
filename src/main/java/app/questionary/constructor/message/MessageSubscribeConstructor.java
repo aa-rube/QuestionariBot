@@ -1,6 +1,6 @@
-package app.bot.constructor.message;
+package app.questionary.constructor.message;
 
-import app.bot.constructor.keyboards.SubscribeKeyboardConstructor;
+import app.questionary.constructor.keyboards.SubscribeKeyboardConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;

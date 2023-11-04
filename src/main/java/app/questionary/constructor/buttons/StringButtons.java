@@ -1,4 +1,4 @@
-package app.bot.constructor.buttons;
+package app.questionary.constructor.buttons;
 
 public enum StringButtons {
     EDIT_QUESTION("/editQuestion_"),

@@ -1,4 +1,4 @@
-package app.bot.constructor.buttons;
+package app.questionary.constructor.buttons;
 
 public enum NumbersButtons {
     PASS_THE_TEST(0),

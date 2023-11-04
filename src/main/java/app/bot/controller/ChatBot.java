@@ -2,12 +2,12 @@ package app.bot.controller;
 
 import app.bot.admin.AdminMessage;
 import app.bot.config.BotConfig;
-import app.bot.constructor.BotUserConstructor;
-import app.bot.constructor.message.MessageForCreateTestConstructor;
-import app.bot.constructor.message.MessageForPassTest;
-import app.bot.constructor.message.MessageSubscribeConstructor;
-import app.bot.constructor.buttons.NumbersButtons;
-import app.bot.constructor.buttons.StringButtons;
+import app.questionary.constructor.BotUserConstructor;
+import app.questionary.constructor.message.MessageForCreateTestConstructor;
+import app.questionary.constructor.message.MessageForPassTest;
+import app.questionary.constructor.message.MessageSubscribeConstructor;
+import app.questionary.constructor.buttons.NumbersButtons;
+import app.questionary.constructor.buttons.StringButtons;
 import app.bot.model.BotUser;
 import app.questionary.SaveLogic;
 import app.questionary.model.*;

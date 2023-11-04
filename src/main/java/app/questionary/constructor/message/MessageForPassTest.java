@@ -1,6 +1,6 @@
-package app.bot.constructor.message;
+package app.questionary.constructor.message;
 
-import app.bot.constructor.keyboards.PassTheTestKeyBoardsConstructor;
+import app.questionary.constructor.keyboards.PassTheTestKeyBoardsConstructor;
 import app.questionary.model.Questioner;
 import app.questionary.model.Result;
 import app.questionary.repository.MongoService;
@@ -10,8 +10,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-
-import java.io.File;
 
 @Service
 public class MessageForPassTest {

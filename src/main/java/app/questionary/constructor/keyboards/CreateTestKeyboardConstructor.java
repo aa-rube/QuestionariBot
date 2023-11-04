@@ -1,8 +1,8 @@
-package app.bot.constructor.keyboards;
+package app.questionary.constructor.keyboards;
 
 import app.bot.config.BotConfig;
-import app.bot.constructor.buttons.NumbersButtons;
-import app.bot.constructor.buttons.StringButtons;
+import app.questionary.constructor.buttons.NumbersButtons;
+import app.questionary.constructor.buttons.StringButtons;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;

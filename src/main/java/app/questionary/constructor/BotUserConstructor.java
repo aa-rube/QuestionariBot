@@ -1,4 +1,4 @@
-package app.bot.constructor;
+package app.questionary.constructor;
 
 import app.bot.model.BotUser;
 import org.springframework.stereotype.Service;

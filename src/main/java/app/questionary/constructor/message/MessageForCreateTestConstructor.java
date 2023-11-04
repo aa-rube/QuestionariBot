@@ -1,7 +1,7 @@
-package app.bot.constructor.message;
+package app.questionary.constructor.message;
 
-import app.bot.constructor.keyboards.CreateTestKeyboardConstructor;
-import app.bot.constructor.buttons.StringButtons;
+import app.questionary.constructor.keyboards.CreateTestKeyboardConstructor;
+import app.questionary.constructor.buttons.StringButtons;
 import app.questionary.model.Questioner;
 import app.questionary.model.Option;
 import app.questionary.model.Question;
@@ -11,8 +11,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-
-import java.io.File;
 
 @Service
 public class MessageForCreateTestConstructor {
@@ -100,25 +98,7 @@ public class MessageForCreateTestConstructor {
         String fileId = questioner.getQuestions().get(editeIndexElement).getFilePath();
         try {
             if (!questioner.getQuestions().isEmpty()) {
-                builder.append("\uD83D\uDCDDРЕДАКТИРУЕМ ВОПРОС:\n\"")
-                        .append(questioner.getQuestionsListLastElementIndex()).append(". ")
-                        .append(questioner.getQuestions().get(questioner.getQuestionsListLastElementIndex()).getQuestionText()).append("\"\n");
-
-                int i = 0;
-                builder.append("\nСписок вопросов: \n");
-                for (Question q : questioner.getQuestions()) {
-                    builder.append(i).append(". \"").append(q.getQuestionText()).append("\"");
-                    builder.append(", ред: ").append(StringButtons.EDIT_QUESTION.getValue()).append(i).append(" \n");
-
-                    for (int j = 0; j < questioner.getQuestions().get(i).getOptions().size(); j++) {
-                        Option option = questioner.getQuestions().get(i).getOptions().get(j);
-                        builder.append("Ответ: \"").append(option.getOptionText()).append("\", балл: ").append(option.getScore()).append(", ");
-                        builder.append("ред: ").append(StringButtons.EDIT_OPTION.getValue())
-                                .append(i).append("_").append(j).append(" \n");
-                    }
-                    builder.append("\n\n");
-                    i++;
-                }
+                getEditParamText(questioner, editeIndexElement, builder);
             } else {
                 builder.setLength(0);
                 builder.append("Вопросы еще не добавлены");
@@ -138,30 +118,34 @@ public class MessageForCreateTestConstructor {
                 keyboards.getEditQuestionUserIndexElement(editeIndexElement), fileId);
     }
 
+    private void getEditParamText(Questioner questioner, int editeIndexElement, StringBuilder builder) {
+        builder.append("\uD83D\uDCDDРЕДАКТИРУЕМ ВОПРОС:\n\"")
+                .append(questioner.getQuestionsListLastElementIndex()).append(". ")
+                .append(questioner.getQuestions().get(editeIndexElement).getQuestionText()).append("\"\n");
+
+        int i = 0;
+        builder.append("\nСписок вопросов: \n");
+        for (Question q : questioner.getQuestions()) {
+            builder.append(i).append(". \"").append(q.getQuestionText()).append("\"");
+            builder.append(", ред: ").append(StringButtons.EDIT_QUESTION.getValue()).append(i).append(" \n");
+
+            for (int j = 0; j < questioner.getQuestions().get(i).getOptions().size(); j++) {
+                Option option = questioner.getQuestions().get(i).getOptions().get(j);
+                builder.append("Ответ: \"").append(option.getOptionText()).append("\", балл: ").append(option.getScore()).append(", ");
+                builder.append("ред: ").append(StringButtons.EDIT_OPTION.getValue())
+                        .append(i).append("_").append(j).append(" \n");
+            }
+            builder.append("\n\n");
+            i++;
+        }
+    }
+
     public SendMessage getEditeQuestionByUserElement(Long chatId, Questioner questioner, int editeIndexElement) {
 
         StringBuilder builder = new StringBuilder();
         try {
             if (!questioner.getQuestions().isEmpty()) {
-                builder.append("\uD83D\uDCDDРЕДАКТИРУЕМ ВОПРОС:\n\"")
-                        .append(questioner.getQuestionsListLastElementIndex()).append(". ")
-                        .append(questioner.getQuestions().get(questioner.getQuestionsListLastElementIndex()).getQuestionText()).append("\"\n");
-
-                int i = 0;
-                builder.append("\nСписок вопросов: \n");
-                for (Question q : questioner.getQuestions()) {
-                    builder.append(i).append(". \"").append(q.getQuestionText()).append("\"");
-                    builder.append(", ред: ").append(StringButtons.EDIT_QUESTION.getValue()).append(i).append(" \n");
-
-                    for (int j = 0; j < questioner.getQuestions().get(i).getOptions().size(); j++) {
-                        Option option = questioner.getQuestions().get(i).getOptions().get(j);
-                        builder.append("Ответ: \"").append(option.getOptionText()).append("\", балл: ").append(option.getScore()).append(", ");
-                        builder.append("ред: ").append(StringButtons.EDIT_OPTION.getValue())
-                                .append(i).append("_").append(j).append(" \n");
-                    }
-                    builder.append("\n\n");
-                    i++;
-                }
+                getEditParamText(questioner, editeIndexElement, builder);
             } else {
                 builder.setLength(0);
                 builder.append("Вопросы еще не добавлены");
