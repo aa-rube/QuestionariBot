@@ -3,6 +3,7 @@ package app.bot.controller;
 import app.bot.admin.AdminMessage;
 import app.bot.config.BotConfig;
 import app.questionary.constructor.BotUserConstructor;
+import app.questionary.constructor.inlineQueryData.InlineQueryData;
 import app.questionary.constructor.message.MessageForCreateTestConstructor;
 import app.questionary.constructor.message.MessageForPassTest;
 import app.questionary.constructor.message.MessageSubscribeConstructor;
@@ -25,12 +26,9 @@ import org.telegram.telegrambots.meta.api.objects.*;
 
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.inlinequery.InlineQuery;
-import org.telegram.telegrambots.meta.api.objects.inlinequery.inputmessagecontent.InputTextMessageContent;
 import org.telegram.telegrambots.meta.api.objects.inlinequery.result.InlineQueryResult;
 import org.telegram.telegrambots.meta.api.objects.inlinequery.result.InlineQueryResultArticle;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import javax.annotation.PostConstruct;
@@ -56,6 +54,8 @@ public class ChatBot extends TelegramLongPollingBot {
     private BotUserConstructor botConstructor;
     @Autowired
     private SaveLogic saveLogic;
+    @Autowired
+    private InlineQueryData inlineQueryData;
     private final HashSet<Long> waitForName = new HashSet<>();
     private final HashSet<Long> waitForQuestion = new HashSet<>();
     private final HashSet<Long> waitForNewOption = new HashSet<>();
@@ -219,19 +219,18 @@ public class ChatBot extends TelegramLongPollingBot {
     private void inlineAnswer(Update update) {
         InlineQuery inlineQuery = update.getInlineQuery();
         String query = inlineQuery.getQuery();
-        List<InlineQueryResult> results = new ArrayList<>();
 
+        List<InlineQueryResult> results = new ArrayList<>();
         List<Questioner> questioners = mongo.getAllQuestioners();
 
         Comparator<Questioner> comparator = Comparator
                 .comparing(Questioner::getPassCount, Comparator.reverseOrder())
                 .thenComparing(Questioner::getAverageScore, Comparator.reverseOrder());
-
         questioners.sort(comparator);
 
         for (Questioner questioner : questioners) {
             if (questioner.getName().toLowerCase().contains(query.toLowerCase())) {
-                InlineQueryResultArticle article = getInlineQueryResultArticle(questioner);
+                InlineQueryResultArticle article = inlineQueryData.getInlineQueryResultArticle(botConfig.getBotUserName(),questioner);
                 results.add(article);
             }
         }
@@ -244,34 +243,6 @@ public class ChatBot extends TelegramLongPollingBot {
             execute(answerInlineQuery);
         } catch (TelegramApiException ignored) {
         }
-    }
-
-    private InlineQueryResultArticle getInlineQueryResultArticle(Questioner questioner) {
-        InlineQueryResultArticle article = new InlineQueryResultArticle();
-
-        article.setId(questioner.getQuestionerId());
-        article.setTitle(questioner.getName());
-        article.setDescription("Рейтинг " + questioner.getAverageScore() + "⭐️ "
-                + "\nПройдено раз: " + questioner.getPassCount());
-        article.setThumbnailUrl(questioner.getFilePath());
-
-        InputTextMessageContent messageContent = new InputTextMessageContent();
-        messageContent.setMessageText("Давай пройдем тест \"" + questioner.getName() + "\"");
-
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        List<InlineKeyboardButton> startRow = new ArrayList<>();
-        InlineKeyboardButton start = new InlineKeyboardButton();
-        start.setText("Начать тест");
-        String s = "https://t.me/" + botConfig.getBotUserName() + "?start=" + "got_" + questioner.getQuestionerId();
-        start.setUrl(s);
-
-        startRow.add(start);
-        keyboard.add(startRow);
-        markup.setKeyboard(keyboard);
-        article.setReplyMarkup(markup);
-        article.setInputMessageContent(messageContent);
-        return article;
     }
 
     private void superUserTextMessageHandle(Update update, Long chatId) {
@@ -1237,7 +1208,7 @@ public class ChatBot extends TelegramLongPollingBot {
 
             try {
                 waitForLowRate.add(chatId);
-                int topRate = Integer.valueOf(text.trim());
+                int topRate = Integer.parseInt(text.trim());
                 int index = create.get(chatId).getResultListLastElementNumber();
 
                 compareTopAndLowRates.put(chatId, topRate);
@@ -1720,7 +1691,7 @@ public class ChatBot extends TelegramLongPollingBot {
 
                 try {
                     execute(deleteMessage);
-                } catch (TelegramApiException e) {
+                } catch (TelegramApiException ignored) {
 
                 }
             }
