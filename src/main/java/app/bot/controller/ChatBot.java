@@ -27,6 +27,7 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import org.telegram.telegrambots.meta.api.objects.inlinequery.InlineQuery;
 import org.telegram.telegrambots.meta.api.objects.inlinequery.result.InlineQueryResult;
+import org.telegram.telegrambots.meta.api.objects.inlinequery.result.InlineQueryResultArticle;
 import org.telegram.telegrambots.meta.api.objects.inlinequery.result.InlineQueryResultPhoto;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -230,7 +231,7 @@ public class ChatBot extends TelegramLongPollingBot {
 
         for (Questioner questioner : questioners) {
             if (questioner.getName().toLowerCase().contains(query.toLowerCase())) {
-                InlineQueryResultPhoto article = inlineQueryData.getInlineQueryResult(botConfig.getBotUserName(),questioner);
+                InlineQueryResultArticle article = inlineQueryData.getInlineQueryResult(botConfig.getBotUserName(),questioner);
 
                 results.add(article);
             }
