@@ -1702,22 +1702,8 @@ public class ChatBot extends TelegramLongPollingBot {
     }
     public List<String> splitString(String originalText, int maxLength) {
         List<String> parts = new ArrayList<>();
-        int length = Math.min(originalText.length(), maxLength);
-        String part1 = originalText.substring(0, length);
-        String part2 = originalText.substring(length);
-        int newLineIndex = part2.indexOf("\n");
-        int spaceIndex = part2.indexOf(" ", maxLength);
-
-        if (newLineIndex >= 0 && newLineIndex <= 1.3 * length) {
-            parts.add(part1 + part2.substring(0, newLineIndex + 1));
-            parts.add(part2.substring(newLineIndex + 1));
-        } else if (spaceIndex >= 0) {
-            parts.add(part1 + part2.substring(0, spaceIndex + 1));
-            parts.add(part2.substring(spaceIndex + 1));
-        } else {
-            parts.add(part1);
-            parts.add(part2);
-        }
+        parts.add(originalText.substring(0, maxLength));
+        parts.add(originalText.substring(maxLength));
         return parts;
     }
     private void executeSendPhoto(SendPhoto msg) {
@@ -1741,7 +1727,7 @@ public class ChatBot extends TelegramLongPollingBot {
         }
 
         String originalText = msg.getCaption();
-        int length = 900;
+        int length = 1000;
         if(originalText.length() > length) {
             List<String> parts = splitString(originalText, length);
             msg.setCaption(parts.get(0));
