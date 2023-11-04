@@ -1618,7 +1618,8 @@ public class ChatBot extends TelegramLongPollingBot {
 
     private void sendTestPhotoOrRegularTextWhenYouEditQuestion(Long chatId, int editeIndexElement) {
         try {
-            if (create.get(chatId).getFilePath() != null && !create.get(chatId).getFilePath().isEmpty()) {
+            if (create.get(chatId).getQuestions().get(editeIndexElement).getFilePath() != null
+                    && !create.get(chatId).getQuestions().get(editeIndexElement).getFilePath().isEmpty()) {
                 executeSendPhoto(createTestMsg.getEditeQuestionByUserElementWithPhoto(chatId, create.get(chatId), editeIndexElement));
                 return;
             }
