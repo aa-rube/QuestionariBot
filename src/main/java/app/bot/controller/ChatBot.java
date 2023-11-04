@@ -1391,8 +1391,9 @@ public class ChatBot extends TelegramLongPollingBot {
                 create.get(chatId).getResults().get(i).setTopRate(score);
                 removeAdminWaitLists(chatId);
                 waitForEditLowRate.put(chatId, i);
+                waitForEditTopRate.clear();
                 executeSendMessage(createTestMsg.getChangeParamAndBackToCreateQuestionParameters(chatId,
-                        "Введите нижнюю границу баллов за результат:" + create.get(chatId).getResults().get(i)));
+                        "Введите нижнюю границу баллов за результат:" + create.get(chatId).getResults().get(i).getResultText()));
             } catch (Exception e) {
                 executeSendMessage(createTestMsg.getChangeParamAndBackToCreateQuestionParameters(chatId,
                         "Кажется вы ввели что-то кроме цифр.\nВведите верхнюю границу баллов за результат:"));
@@ -1642,10 +1643,7 @@ public class ChatBot extends TelegramLongPollingBot {
             } else {
                 executeSendMessage(createTestMsg.getCreateNewQuestionParametersSendMessage(chatId, create.get(chatId)));
             }
-
-
         }
-
     }
 
     private void sendResultPhotoOrRegularText(Long chatId) {
@@ -1697,7 +1695,6 @@ public class ChatBot extends TelegramLongPollingBot {
             executeSendMessage(createTestMsg.getNoOneTest(chatId, "Ни одного теста не создано"));
         }
     }
-
     private List<String> splitString(String originalText, int maxLength) {
         List<String> parts = new ArrayList<>();
         int length = Math.min(originalText.length(), maxLength);
@@ -1722,7 +1719,6 @@ public class ChatBot extends TelegramLongPollingBot {
         }
         return parts;
     }
-
     private void executeSendPhoto(SendPhoto msg) {
 
         if (doubleMsg.containsKey(Long.valueOf(msg.getChatId()))) {
@@ -1770,7 +1766,6 @@ public class ChatBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-
     private void executeSendMessage(SendMessage msg) {
         Long chatId = Long.valueOf(msg.getChatId());
         String originalText = msg.getText();
@@ -1824,7 +1819,6 @@ public class ChatBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-
     public void deleteMessage(Long chatId) {
         DeleteMessage deleteMessage = new DeleteMessage();
         deleteMessage.setChatId(chatId);
