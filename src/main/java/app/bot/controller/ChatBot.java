@@ -152,7 +152,7 @@ public class ChatBot extends TelegramLongPollingBot {
                     moderatorCallBackData(update, botConfig.getModeratorChatId());
                     return;
                 }
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
 
@@ -169,8 +169,7 @@ public class ChatBot extends TelegramLongPollingBot {
 
                 return;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
 
         try {
@@ -185,8 +184,7 @@ public class ChatBot extends TelegramLongPollingBot {
 
                 return;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
         try {
             if (update.hasMessage() && update.getMessage().hasText() && !update.getMessage().hasPhoto()) {
@@ -200,8 +198,7 @@ public class ChatBot extends TelegramLongPollingBot {
                 textMessageHandle(chatId, update);
                 return;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
 
         try {
@@ -214,8 +211,7 @@ public class ChatBot extends TelegramLongPollingBot {
                 userInDay.add(chatId);
                 photoMessageHandle(chatId, update);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
 
     }
@@ -231,37 +227,11 @@ public class ChatBot extends TelegramLongPollingBot {
                 .comparing(Questioner::getPassCount, Comparator.reverseOrder())
                 .thenComparing(Questioner::getAverageScore, Comparator.reverseOrder());
 
-        Collections.sort(questioners, comparator);
+        questioners.sort(comparator);
 
         for (Questioner questioner : questioners) {
             if (questioner.getName().toLowerCase().contains(query.toLowerCase())) {
-                InlineQueryResultArticle article = new InlineQueryResultArticle();
-
-                article.setId(questioner.getQuestionerId());
-                article.setTitle(questioner.getName());
-                article.setDescription("Рейтинг " + questioner.getAverageScore() + "⭐\uFE0F "
-                        + "\nПройдено раз: " + questioner.getPassCount());
-
-                InputTextMessageContent messageContent = new InputTextMessageContent();
-                messageContent.setMessageText("Давай пройдем тест \"" + questioner.getName() + "\"");
-
-                InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-                List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-                List<InlineKeyboardButton> startRow = new ArrayList<>();
-                InlineKeyboardButton start = new InlineKeyboardButton();
-                start.setText("Начать тест");
-                String s = "https://t.me/" + botConfig.getBotUserName() + "?start=" + "got_" + questioner.getQuestionerId();
-                start.setUrl(s);
-
-                startRow.add(start);
-
-                keyboard.add(startRow);
-
-                markup.setKeyboard(keyboard);
-
-                article.setReplyMarkup(markup);
-
-                article.setInputMessageContent(messageContent);
+                InlineQueryResultArticle article = getInlineQueryResultArticle(questioner);
                 results.add(article);
             }
         }
@@ -272,9 +242,39 @@ public class ChatBot extends TelegramLongPollingBot {
 
         try {
             execute(answerInlineQuery);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
+        } catch (TelegramApiException ignored) {
         }
+    }
+
+    private InlineQueryResultArticle getInlineQueryResultArticle(Questioner questioner) {
+        InlineQueryResultArticle article = new InlineQueryResultArticle();
+
+        article.setId(questioner.getQuestionerId());
+        article.setTitle(questioner.getName());
+        article.setDescription("Рейтинг " + questioner.getAverageScore() + "⭐️ "
+                + "\nПройдено раз: " + questioner.getPassCount());
+
+        InputTextMessageContent messageContent = new InputTextMessageContent();
+        messageContent.setMessageText("Давай пройдем тест \"" + questioner.getName() + "\"");
+
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        List<InlineKeyboardButton> startRow = new ArrayList<>();
+        InlineKeyboardButton start = new InlineKeyboardButton();
+        start.setText("Начать тест");
+        String s = "https://t.me/" + botConfig.getBotUserName() + "?start=" + "got_" + questioner.getQuestionerId();
+        start.setUrl(s);
+
+        startRow.add(start);
+
+        keyboard.add(startRow);
+
+        markup.setKeyboard(keyboard);
+
+        article.setReplyMarkup(markup);
+
+        article.setInputMessageContent(messageContent);
+        return article;
     }
 
     private void superUserTextMessageHandle(Update update, Long chatId) {
@@ -615,8 +615,6 @@ public class ChatBot extends TelegramLongPollingBot {
                 int y = lastIndexInUserList.get(chatId);
             } catch (Exception e) {
                 lastIndexInUserList.put(chatId, 0);
-
-
             }
 
             executeSendMessage(adminMessage.getUserFindPanel(chatId, 0));
@@ -686,7 +684,7 @@ public class ChatBot extends TelegramLongPollingBot {
                     executeSendMessage(subscribe.getSubscribeOffer(chatId, update));
                     return;
                 }
-            } catch (Exception e) {
+            } catch (Exception ignored) {
 
             }
             BotUser botUser = mongo.getBotUser(chatId);
@@ -1006,7 +1004,6 @@ public class ChatBot extends TelegramLongPollingBot {
         }
 
 
-
         mongo.deleteQuestionerByQuestionerId(q.getQuestionerId());
         q.setChatId(chatId);
         mongo.saveQuestioner(q);
@@ -1286,7 +1283,6 @@ public class ChatBot extends TelegramLongPollingBot {
             } catch (Exception e) {
                 executeSendMessage(createTestMsg.getChangeParamAndBackToCreateResultOption(chatId,
                         "Вы ввели что-то кроме цифры. Повторите попытку.\nВведите число баллов за ответ:"));
-                e.printStackTrace();
             }
             return;
         }
@@ -1320,7 +1316,7 @@ public class ChatBot extends TelegramLongPollingBot {
                 create.get(chatId).getQuestions().get(Integer.parseInt(userData[1]))
                         .getOptions().get(Integer.parseInt(userData[2])).setOptionText(text.trim());
 
-            } catch (Exception e) {
+            } catch (Exception ignored) {
 
 
             }
@@ -1355,8 +1351,7 @@ public class ChatBot extends TelegramLongPollingBot {
 
         if (waitForNewScoreFromEditKeyBoard.containsKey(chatId)) {
             deleteMessage(chatId);
-            System.out.println("waitForNewScoreFromEditKeyBoard.get(chatId): " + waitForNewScoreFromEditKeyBoard.get(chatId));
-            System.out.println("text: " + text);
+
             try {
                 int score = Integer.parseInt(text.trim());
                 int questionIndex = waitForNewScoreFromEditKeyBoard.get(chatId);
@@ -1367,7 +1362,6 @@ public class ChatBot extends TelegramLongPollingBot {
                 executeSendMessage(createTestMsg.getEditeQuestionByUserElement(chatId, create.get(chatId), questionIndex));
                 removeFromAllWaitingLists(chatId);
 
-
             } catch (Exception e) {
                 int questionIndex = waitForNewScoreFromEditKeyBoard.get(chatId);
                 int lastOptElement = create.get(chatId).getQuestions().get(questionIndex).getOptionsLastElementIndex();
@@ -1375,8 +1369,6 @@ public class ChatBot extends TelegramLongPollingBot {
                 executeSendMessage(createTestMsg.getChangeParamAndBackToCreateQuestionParameters(chatId,
                         "Вы ввели что-то кроме цифр. Повторите попытку." +
                                 "\nВведите число баллов за ответ: " + answer));
-                e.printStackTrace();
-
             }
             return;
         }
@@ -1503,7 +1495,7 @@ public class ChatBot extends TelegramLongPollingBot {
                     passTheTest.remove(chatId);
                     return;
                 }
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
 
             cantStarsDouble.get(chatId).add(questioner.getQuestionerId());
@@ -1582,13 +1574,6 @@ public class ChatBot extends TelegramLongPollingBot {
 
         if (waitForQuestionPic.contains(chatId)) {
             int lastIndexQuestionElement = create.get(chatId).getQuestionsListLastElementIndex();
-            try {
-                new java.io.File(create.get(chatId)
-                        .getQuestions().get(lastIndexQuestionElement).getFilePath()).delete();
-            } catch (Exception e) {
-
-            }
-
 
             String filePath = update.getMessage().getPhoto().get(0).getFileId();
             create.get(chatId).getQuestions().get(lastIndexQuestionElement).setFilePath(filePath);
@@ -1633,8 +1618,7 @@ public class ChatBot extends TelegramLongPollingBot {
 
     private void sendTestPhotoOrRegularTextWhenYouEditQuestion(Long chatId, int editeIndexElement) {
         try {
-            String s = create.get(chatId).getFilePath();
-            if (s != null) {
+            if (create.get(chatId).getFilePath() != null && !create.get(chatId).getFilePath().isEmpty()) {
                 executeSendPhoto(createTestMsg.getEditeQuestionByUserElementWithPhoto(chatId, create.get(chatId), editeIndexElement));
                 return;
             }
