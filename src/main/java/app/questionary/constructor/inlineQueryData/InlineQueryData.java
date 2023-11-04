@@ -3,7 +3,7 @@ package app.questionary.constructor.inlineQueryData;
 import app.questionary.model.Questioner;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.inlinequery.inputmessagecontent.InputTextMessageContent;
-import org.telegram.telegrambots.meta.api.objects.inlinequery.result.InlineQueryResultArticle;
+import org.telegram.telegrambots.meta.api.objects.inlinequery.result.InlineQueryResultPhoto;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
@@ -27,8 +27,11 @@ public class InlineQueryData {
         return markup;
     }
 
-    public InlineQueryResultArticle getInlineQueryResultArticle(String name, Questioner questioner) {
-        InlineQueryResultArticle article = new InlineQueryResultArticle();
+    public InlineQueryResultPhoto getInlineQueryResult(String name, Questioner questioner) {
+        InlineQueryResultPhoto article = new InlineQueryResultPhoto();
+
+        article.setPhotoUrl(questioner.getFilePath());
+        article.setThumbUrl(questioner.getFilePath());
 
         article.setId(questioner.getQuestionerId());
         article.setTitle(questioner.getName());
