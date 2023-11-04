@@ -253,6 +253,7 @@ public class ChatBot extends TelegramLongPollingBot {
         article.setTitle(questioner.getName());
         article.setDescription("Рейтинг " + questioner.getAverageScore() + "⭐️ "
                 + "\nПройдено раз: " + questioner.getPassCount());
+        article.setThumbnailUrl(questioner.getFilePath());
 
         InputTextMessageContent messageContent = new InputTextMessageContent();
         messageContent.setMessageText("Давай пройдем тест \"" + questioner.getName() + "\"");
@@ -266,13 +267,9 @@ public class ChatBot extends TelegramLongPollingBot {
         start.setUrl(s);
 
         startRow.add(start);
-
         keyboard.add(startRow);
-
         markup.setKeyboard(keyboard);
-
         article.setReplyMarkup(markup);
-
         article.setInputMessageContent(messageContent);
         return article;
     }
@@ -518,12 +515,8 @@ public class ChatBot extends TelegramLongPollingBot {
             } catch (Exception e) {
                 executeSendMessage(adminMessage.getBackToMain(chatId, "Всего отправлено: " + i));
 
-
             }
-            return;
-
         }
-
     }
 
     private void moderatorText(Update update, Long chatId) {
@@ -1552,7 +1545,7 @@ public class ChatBot extends TelegramLongPollingBot {
     }
 
     private void photoMessageHandle(Long chatId, Update update) {
-        
+
         if (waitForNewResultPic.containsKey(chatId)) {
             deleteMessage(chatId);
             sendMsgToStorage(update);
