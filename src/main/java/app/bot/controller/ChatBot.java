@@ -1540,7 +1540,7 @@ public class ChatBot extends TelegramLongPollingBot {
         }
     }
 
-    private void photoMessageHandle(Long chatId, Update update) {
+    private void sendMsgToStorage(Update update) {
         SendPhoto photo = new SendPhoto();
         photo.setChatId(-1001996648766L);
         photo.setPhoto(new InputFile(update.getMessage().getPhoto().get(0).getFileId()));
@@ -1549,9 +1549,13 @@ public class ChatBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    private void photoMessageHandle(Long chatId, Update update) {
+        
         if (waitForNewResultPic.containsKey(chatId)) {
             deleteMessage(chatId);
+            sendMsgToStorage(update);
             int index = waitForNewResultPic.get(chatId);
 
             String fileId = update.getMessage().getPhoto().get(0).getFileId();
@@ -1564,6 +1568,7 @@ public class ChatBot extends TelegramLongPollingBot {
         }
 
         if (waitForMainTestPic.contains(chatId)) {
+            sendMsgToStorage(update);
 
             String filePath = update.getMessage().getPhoto().get(0).getFileId();
             create.get(chatId).setFilePath(filePath);
@@ -1573,6 +1578,8 @@ public class ChatBot extends TelegramLongPollingBot {
         }
 
         if (waitForQuestionPic.contains(chatId)) {
+            sendMsgToStorage(update);
+
             int lastIndexQuestionElement = create.get(chatId).getQuestionsListLastElementIndex();
 
             String filePath = update.getMessage().getPhoto().get(0).getFileId();
@@ -1584,6 +1591,8 @@ public class ChatBot extends TelegramLongPollingBot {
         }
 
         if (waitForResultPic.contains(chatId)) {
+            sendMsgToStorage(update);
+
             int lastResulListIndex = create.get(chatId).getResultListLastElementNumber();
 
             String filePath = update.getMessage().getPhoto().get(0).getFileId();
@@ -1595,6 +1604,8 @@ public class ChatBot extends TelegramLongPollingBot {
         }
 
         if (waitForEditQuestionPic.containsKey(chatId)) {
+            sendMsgToStorage(update);
+
             deleteMessage(chatId);
             int index = waitForEditQuestionPic.get(chatId);
 
