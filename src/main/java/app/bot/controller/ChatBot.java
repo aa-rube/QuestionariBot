@@ -1695,27 +1695,22 @@ public class ChatBot extends TelegramLongPollingBot {
             executeSendMessage(createTestMsg.getNoOneTest(chatId, "Ни одного теста не создано"));
         }
     }
-    private List<String> splitString(String originalText, int maxLength) {
+    public List<String> splitString(String originalText, int maxLength) {
         List<String> parts = new ArrayList<>();
         int length = Math.min(originalText.length(), maxLength);
         String part1 = originalText.substring(0, length);
         String part2 = originalText.substring(length);
-
-        if (part2.length() > 0) {
-            int index = part2.indexOf("\n");
-            if (index > 0 && index < maxLength * 0.3) {
-                parts.add(part1 + part2.substring(0, index));
-                parts.addAll(splitString(part2.substring(index + 1), maxLength));
-            } else {
-                index = part2.lastIndexOf(" ", maxLength);
-                if (index == -1) {
-                    index = maxLength;
-                }
-                parts.add(part1 + part2.substring(0, index));
-                parts.addAll(splitString(part2.substring(index), maxLength));
-            }
+        int newLineIndex = part2.indexOf("\n");
+        int spaceIndex = part2.indexOf(" ", maxLength);
+        if (newLineIndex >= 0 && newLineIndex <= 1.3 * length) {
+            parts.add(part1 + part2.substring(0, newLineIndex + 1));
+            parts.add(part2.substring(newLineIndex + 1));
+        } else if (spaceIndex >= 0) {
+            parts.add(part1 + part2.substring(0, spaceIndex + 1));
+            parts.add(part2.substring(spaceIndex + 1));
         } else {
             parts.add(part1);
+            parts.add(part2);
         }
         return parts;
     }
@@ -1740,8 +1735,8 @@ public class ChatBot extends TelegramLongPollingBot {
         }
 
         String originalText = msg.getCaption();
-        if(originalText.length() > 1024) {
-            List<String> parts = splitString(originalText, 1024);
+        if(originalText.length() > 800) {
+            List<String> parts = splitString(originalText, 800);
             msg.setCaption(parts.get(0));
 
             try {
