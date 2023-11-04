@@ -1735,17 +1735,22 @@ public class ChatBot extends TelegramLongPollingBot {
         }
 
         String originalText = msg.getCaption();
-        if(originalText.length() > 800) {
-            List<String> parts = splitString(originalText, 800);
+        int length = 1024;
+        if(originalText.length() > length) {
+            List<String> parts = splitString(originalText, length);
             msg.setCaption(parts.get(0));
 
             try {
+                ReplyKeyboard markup = msg.getReplyMarkup();
+                msg.setReplyMarkup(null);
+
                 List<Integer> intList = new ArrayList<>();
                 intList.add(execute(msg).getMessageId());
 
                 SendMessage second = new SendMessage();
                 second.setChatId(Long.valueOf(msg.getChatId()));
                 second.setText(parts.get(1));
+                second.setReplyMarkup(markup);
                 intList.add(execute(second).getMessageId());
                 doubleMsg.put(Long.valueOf(msg.getChatId()), intList);
 
