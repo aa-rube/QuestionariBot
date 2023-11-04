@@ -140,7 +140,7 @@ public class MessageForCreateTestConstructor {
 
     private void getEditQuestionText(Questioner questioner, int editeIndexElement, StringBuilder builder) {
         builder.append("\uD83D\uDCDDРЕДАКТИРУЕМ ВОПРОС:\n\"")
-                .append(questioner.getQuestionsListLastElementIndex()).append(". ")
+                .append(editeIndexElement).append(". ")
                 .append(questioner.getQuestions().get(editeIndexElement).getQuestionText()).append("\"\n");
 
         int i = 0;
