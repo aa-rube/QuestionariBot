@@ -1741,7 +1741,7 @@ public class ChatBot extends TelegramLongPollingBot {
         }
 
         String originalText = msg.getCaption();
-        int length = 1024;
+        int length = 900;
         if(originalText.length() > length) {
             List<String> parts = splitString(originalText, length);
             msg.setCaption(parts.get(0));
