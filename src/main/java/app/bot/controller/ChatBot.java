@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.AnswerInlineQuery;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
@@ -33,9 +34,13 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import javax.annotation.PostConstruct;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class ChatBot extends TelegramLongPollingBot {
@@ -985,7 +990,7 @@ public class ChatBot extends TelegramLongPollingBot {
         } catch (Exception e) {
             executeSendMessage(createTestMsg.getChangeParamAndBackToMainMenuCreateQuestion(chatId,
                     "Вы не добавили ни одного результата"));
-            return;
+            return
         }
 
 
@@ -1445,8 +1450,8 @@ public class ChatBot extends TelegramLongPollingBot {
             int index = Integer.parseInt(splitData[2]) + 1;
             int totalScore = testTotalScoreMap.get(chatId) + Integer.parseInt(splitData[1]);
             int lastIndex = questioner.getQuestionsListLastElementIndex();
-            int max = Integer.MIN_VALUE;
-            int min = Integer.MAX_VALUE;
+            int max = 0;
+            int min = 0;
 
 
             if (index > lastIndex) {
@@ -1472,13 +1477,39 @@ public class ChatBot extends TelegramLongPollingBot {
                     }
 
                 }
-
                 List<Result> results = passTheTest.get(chatId).getResults();
-                if (getNoFramesResult(chatId, results, totalScore > max, Comparator.comparing(Result::getTopRate)))
-                    return;
+                if (totalScore > max) {
+                    Result maxResult = results.stream()
+                            .max(Comparator.comparing(Result::getTopRate))
+                            .orElse(null);
+                    try {
+                        assert maxResult != null;
+                        testResultMsgPhoto.put(chatId, passTest.getResultTestMessagePhoto(chatId, maxResult));
+                        executeSendMessage(passTest.getStarsForTest(chatId));
+                        return;
+                    } catch (Exception e) {
+                        testResultMsg.put(chatId, passTest.getResultTestMessage(chatId, maxResult));
+                        executeSendMessage(passTest.getStarsForTest(chatId));
+                        return;
+                    }
+                }
 
-                if (getNoFramesResult(chatId, results, totalScore < min, Comparator.comparing(Result::getLowRate)))
-                    return;
+
+                if (totalScore < min) {
+                    Result minResult = results.stream()
+                            .max(Comparator.comparing(Result::getLowRate))
+                            .orElse(null);
+                    try {
+                        assert minResult != null;
+                        testResultMsgPhoto.put(chatId, passTest.getResultTestMessagePhoto(chatId, minResult));
+                        executeSendMessage(passTest.getStarsForTest(chatId));
+                        return;
+                    } catch (Exception e) {
+                        testResultMsg.put(chatId, passTest.getResultTestMessage(chatId, minResult));
+                        executeSendMessage(passTest.getStarsForTest(chatId));
+                        return;
+                    }
+                }
                 return;
             }
 
@@ -1538,25 +1569,6 @@ public class ChatBot extends TelegramLongPollingBot {
             passTheTest.remove(chatId);
             return;
         }
-    }
-
-    private boolean getNoFramesResult(Long chatId, List<Result> results, boolean b, Comparator<Result> comparing) {
-        if (b) {
-            Result minResult = results.stream()
-                    .max(comparing)
-                    .orElse(null);
-            try {
-                assert minResult != null;
-                testResultMsgPhoto.put(chatId, passTest.getResultTestMessagePhoto(chatId, minResult));
-                executeSendMessage(passTest.getStarsForTest(chatId));
-                return true;
-            } catch (Exception e) {
-                testResultMsg.put(chatId, passTest.getResultTestMessage(chatId, minResult));
-                executeSendMessage(passTest.getStarsForTest(chatId));
-                return true;
-            }
-        }
-        return false;
     }
 
     private void sendTextOrPhotoQuestion(Long chatId, Questioner questioner, int index) {
