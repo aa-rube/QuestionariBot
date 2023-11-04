@@ -1625,7 +1625,12 @@ public class ChatBot extends TelegramLongPollingBot {
     private void sendTestPhotoOrRegularTextWhenYouEditQuestion(Long chatId, int editeIndexElement) {
         try {
             String s = create.get(chatId).getFilePath();
-            executeSendPhoto(createTestMsg.getEditeQuestionByUserElementWithPhoto(chatId, create.get(chatId), editeIndexElement));
+            if (s != null) {
+                executeSendPhoto(createTestMsg.getEditeQuestionByUserElementWithPhoto(chatId, create.get(chatId), editeIndexElement));
+                return;
+            }
+            executeSendMessage(createTestMsg.getEditeQuestionByUserElement(chatId, create.get(chatId), editeIndexElement));
+
         } catch (Exception e) {
             executeSendMessage(createTestMsg.getEditeQuestionByUserElement(chatId, create.get(chatId), editeIndexElement));
         }
@@ -1702,6 +1707,7 @@ public class ChatBot extends TelegramLongPollingBot {
         String part2 = originalText.substring(length);
         int newLineIndex = part2.indexOf("\n");
         int spaceIndex = part2.indexOf(" ", maxLength);
+
         if (newLineIndex >= 0 && newLineIndex <= 1.3 * length) {
             parts.add(part1 + part2.substring(0, newLineIndex + 1));
             parts.add(part2.substring(newLineIndex + 1));
@@ -1729,7 +1735,7 @@ public class ChatBot extends TelegramLongPollingBot {
                 try {
                     execute(deleteMessage);
                 } catch (TelegramApiException e) {
-                    e.printStackTrace();
+
                 }
             }
         }
