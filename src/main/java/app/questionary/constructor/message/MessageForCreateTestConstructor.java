@@ -98,7 +98,9 @@ public class MessageForCreateTestConstructor {
         String fileId = questioner.getQuestions().get(editeIndexElement).getFilePath();
         try {
             if (!questioner.getQuestions().isEmpty()) {
-                getEditParamText(questioner, editeIndexElement, builder);
+                getEditQuestionText(questioner, editeIndexElement, builder);
+                return getSendPhotoMsgObject(chatId, builder.toString(),
+                        keyboards.getEditQuestionUserIndexElement(editeIndexElement), fileId);
             } else {
                 builder.setLength(0);
                 builder.append("Вопросы еще не добавлены");
@@ -114,11 +116,29 @@ public class MessageForCreateTestConstructor {
 
         }
 
-        return getSendPhotoMsgObject(chatId, builder.toString(),
-                keyboards.getEditQuestionUserIndexElement(editeIndexElement), fileId);
     }
 
-    private void getEditParamText(Questioner questioner, int editeIndexElement, StringBuilder builder) {
+    public SendMessage getEditeQuestionByUserElement(Long chatId, Questioner questioner, int editeIndexElement) {
+        StringBuilder builder = new StringBuilder();
+        try {
+            if (!questioner.getQuestions().isEmpty()) {
+                getEditQuestionText(questioner, editeIndexElement, builder);
+
+            } else {
+                builder.setLength(0);
+                builder.append("Вопросы еще не добавлены");
+
+            }
+            return getSendMsgObject(chatId, builder.toString(), keyboards.getEditQuestionUserIndexElement(editeIndexElement));
+        } catch (Exception e) {
+            builder.setLength(0);
+            builder.append("Вопросы еще не добавлены");
+            return getSendMsgObject(chatId, builder.toString(), keyboards.getEditQuestionUserIndexElement(editeIndexElement));
+
+        }
+    }
+
+    private void getEditQuestionText(Questioner questioner, int editeIndexElement, StringBuilder builder) {
         builder.append("\uD83D\uDCDDРЕДАКТИРУЕМ ВОПРОС:\n\"")
                 .append(questioner.getQuestionsListLastElementIndex()).append(". ")
                 .append(questioner.getQuestions().get(editeIndexElement).getQuestionText()).append("\"\n");
@@ -140,27 +160,6 @@ public class MessageForCreateTestConstructor {
         }
     }
 
-    public SendMessage getEditeQuestionByUserElement(Long chatId, Questioner questioner, int editeIndexElement) {
-
-        StringBuilder builder = new StringBuilder();
-        try {
-            if (!questioner.getQuestions().isEmpty()) {
-                getEditParamText(questioner, editeIndexElement, builder);
-            } else {
-                builder.setLength(0);
-                builder.append("Вопросы еще не добавлены");
-                return getSendMsgObject(chatId, builder.toString(), keyboards.getEditQuestionUserIndexElement(editeIndexElement));
-
-            }
-        } catch (Exception e) {
-            builder.setLength(0);
-            builder.append("Вопросы еще не добавлены");
-            return getSendMsgObject(chatId, builder.toString(), keyboards.getEditQuestionUserIndexElement(editeIndexElement));
-
-        }
-
-        return getSendMsgObject(chatId, builder.toString(), keyboards.getEditQuestionUserIndexElement(editeIndexElement));
-    }
     public SendMessage getBackToMainCreateQuestionParametersAfterNoAddPic(Long chatId, String text) {
         return getSendMsgObject(chatId, text, keyboards.getToCreatePictureChooseMenu());
     }
