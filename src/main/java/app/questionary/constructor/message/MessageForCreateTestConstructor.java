@@ -326,10 +326,6 @@ public class MessageForCreateTestConstructor {
     }
 
 
-
-
-
-
     public SendMessage getChangeParamMsgEmptyKeyboard(Long chatId, String text) {
         return getSendMsgObject(chatId, text, null);
     }
